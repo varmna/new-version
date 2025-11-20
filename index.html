@@ -982,7 +982,7 @@ function createFeedbackForm() {
         <div class="checkbox-list">
     `;
 
-    // Add category checkboxes (excluding Bot Response, HVA, and Overall Observations)
+    // Add category checkboxes (excluding Bot Response, HVA)
     tool.buckets.slice(2, -1).forEach((bucket, idx) => {
         html += `
         <div class="checkbox-item">
@@ -1015,13 +1015,17 @@ function createFeedbackForm() {
     </div>
 
     <div class="form-section">
-        <div class="form-section-title">Overall Observations</div>
-        <textarea class="form-control" name="overall-observations" placeholder="Please provide overall observations for this conversation" rows="3" oninput="markUnsaved()"></textarea>
+        <div class="form-section-title">Overall Observations <span style="color: var(--error-color);">*</span></div>
+        <textarea class="form-control" name="overall-observations" 
+                  placeholder="Please provide overall observations for this conversation (Required)" 
+                  rows="3" 
+                  oninput="markUnsaved()"></textarea>
     </div>
     `;
 
     elements.feedbackForm.innerHTML = html;
 }
+
 
 
 window.toggleBucketDetails = function(bucket) {
@@ -1478,13 +1482,13 @@ function saveCurrentAnnotations() {
         showStatus(`⚠️ Please select a predefined comment for ${bucketWithMissingComment}`, 'warning');
         return;
     }
-   const overallObservations = document.querySelector('textarea[name="overall-observations"]').value.trim();
-if (!overallObservations) {
-    showStatus('⚠️ Please provide overall observations', 'warning');
-    return;
-}
-tempAnnotations["Overall Observations"] = overallObservations;
+    const overallObservations = document.querySelector('textarea[name="overall-observations"]').value.trim();
+    if (!overallObservations) {
+        showStatus('⚠️ Please provide overall observations', 'warning');
+        return;
+    }
 
+    tempAnnotations["Overall Observations"] = overallObservations;
     tempAnnotations["Timestamp"] = new Date().toLocaleString();
 
     if (Object.keys(tempAnnotations).length === 0) {
