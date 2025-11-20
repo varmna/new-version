@@ -1633,8 +1633,8 @@ elements.downloadBtn.addEventListener('click', async () => {
                         'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
                     };
 
+                    // Add annotations only to the first message
                     if (isFirstMessage) {
-                        // Add annotations in specific order
                         row['Bot Response'] = savedAnnotations['Bot Response'] || '';
                         row['HVA'] = savedAnnotations['HVA'] || '';
                         row['AB feature/HVA Related Query'] = savedAnnotations['AB feature/HVA Related Query'] || '';
@@ -1648,74 +1648,48 @@ elements.downloadBtn.addEventListener('click', async () => {
                         row['Customer Behavior'] = savedAnnotations['Customer Behavior'] || '';
                         row['Other Queries'] = savedAnnotations['Other Queries'] || '';
                         row['Overall Observations'] = savedAnnotations['Overall Observations'] || '';
-                        row['Login'] = tool.userName;
-                        row['Timestamp'] = savedAnnotations['Timestamp'] || '';
-                    } else {
-                        // For non-first messages, add empty values for all annotation columns
-                        tool.buckets.forEach(bucket => {
-                            row[bucket] = '';
-                        });
-                        row['Login'] = '';
-                        row['Timestamp'] = '';
                     }
+
+                    // Add Login and Timestamp to every row
+                    row['Login'] = tool.userName;
+                    row['Timestamp'] = savedAnnotations['Timestamp'] || '';
 
                     annotatedData.push(row);
                 });
             }
         });
-        // Add the new function here
-// Add this function after the tool object definition
-function reassignUnfinishedWork() {
-    try {
-        const workbook = XLSX.utils.book_new();
-        const unannotatedData = [];
 
-        tool.conversations.forEach(conv => {
-            const convId = conv[0].Id;
-            const isAnnotated = tool.annotations[convId] && Object.keys(tool.annotations[convId]).length > 0;
+        const ws = XLSX.utils.json_to_sheet(annotatedData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Annotations");
 
-            if (!isAnnotated) {
-                // Include all messages from unannotated conversations
-                conv.forEach(message => {
-                    const row = {
-                        'Id': message.Id,
-                        'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
-                        'botMessage': message.botMessage || '',
-                        'Customer Feedback': message['Customer Feedback'] || ''
-                    };
-                    unannotatedData.push(row);
-                });
-            }
-        });
-
-        if (unannotatedData.length === 0) {
-            showStatus('✨ All conversations are annotated!', 'success');
-            return;
-        }
-
-        const ws = XLSX.utils.json_to_sheet(unannotatedData);
-        XLSX.utils.book_append_sheet(workbook, ws, "Unannotated");
-
-        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
         const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
         const url = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        a.download = `unannotated_conversations_${timestamp}.xlsx`;
+        a.download = `annotated_conversations_${timestamp}.xlsx`;
         document.body.appendChild(a);
         a.click();
 
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        showStatus(`✅ ${unannotatedData.length/2} unannotated conversations exported!`, 'success');
+        showStatus('✅ Downloaded successfully!', 'success');
+
+        if (confirm('Do you want to clear the saved session data? (Your downloaded file is safe)')) {
+            clearLocalStorage();
+            showStatus('🗑️ Session data cleared', 'info');
+        }
     } catch (error) {
-        showStatus('❌ Error exporting unannotated conversations', 'error');
-        console.error(error);
+        showStatus('❌ Error downloading file', 'error');
+    } finally {
+        showLoading(false);
     }
-}
+});
+
 
 
         const ws = XLSX.utils.json_to_sheet(annotatedData);
