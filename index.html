@@ -746,7 +746,8 @@ color: var(--primary-color);
             <span class="annotated-count" id="annotated-count">0 Annotated</span>
         </div>
         <button id="exit-btn" class="btn btn-outline">🚪 Exit Tool</button>
-        <button id="download-btn" class="btn btn-primary">📥 Download</button>
+        <button id="download-unannotated-btn" class="btn btn-outline">📋 Download Unannotated</button>
+        <button id="download-btn" class="btn btn-primary">📥 Download Annotated</button>
     </div>
 </div>
 
@@ -896,6 +897,11 @@ function handleLogin() {
             elements.uploadScreen.style.display = 'none';
             elements.mainInterface.style.display = 'flex';
             showStatus('✅ Name updated successfully!', 'success');
+        } else {
+            // Trigger file upload after login
+            setTimeout(() => {
+                elements.fileInput.click();
+            }, 100);
         }
         return true;
     } else {
@@ -905,16 +911,12 @@ function handleLogin() {
 }
 
 document.getElementById('login-submit').addEventListener('click', () => {
-    if (handleLogin() && !tool.conversations.length) {
-        elements.fileInput.click();
-    }
+    handleLogin();
 });
 
 document.getElementById('login-name').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        if (handleLogin() && !tool.conversations.length) {
-            elements.fileInput.click();
-        }
+        handleLogin();
     }
 });
 
@@ -937,6 +939,7 @@ const elements = {
     nextBtn: document.getElementById('next-btn'),
     saveBtn: document.getElementById('save-btn'),
     downloadBtn: document.getElementById('download-btn'),
+    downloadUnannotatedBtn: document.getElementById('download-unannotated-btn'),
     exitBtn: document.getElementById('exit-btn'),
     jumpInput: document.getElementById('jump-input'),
     jumpBtn: document.getElementById('jump-btn'),
@@ -1029,8 +1032,7 @@ markUnsaved();
 details.style.display = 'none';
 const selects = details.querySelectorAll('select');
 const textareas = details.querySelectorAll('textarea');
-selects.
-    forEach(s => s.value = '');
+selects.forEach(s => s.value = '');
 textareas.forEach(t => t.value = '');
 markUnsaved();
 }
@@ -1046,7 +1048,6 @@ tool.hasUnsavedChanges = false;
 elements.unsavedIndicator.classList.remove('show');
 }
 
-// Local Storage Functions
 function saveToLocalStorage() {
 try {
 const dataToSave = {
@@ -1709,6 +1710,71 @@ elements.downloadBtn.addEventListener('click', async () => {
             clearLocalStorage();
             showStatus('🗑️ Session data cleared', 'info');
         }
+    } catch (error) {
+        console.error('Download error:', error);
+        showStatus('❌ Error downloading file', 'error');
+    } finally {
+        showLoading(false);
+    }
+});
+
+elements.downloadUnannotatedBtn.addEventListener('click', async () => {
+    try {
+        showLoading(true);
+
+        const unannotatedData = [];
+        
+        tool.conversations.forEach(conv => {
+            const convId = conv[0].Id;
+            const savedAnnotations = tool.annotations[convId];
+            const isAnnotated = savedAnnotations && Object.keys(savedAnnotations).length > 0;
+
+            if (!isAnnotated) {
+                conv.forEach((message, index) => {
+                    const isLastMessage = index === conv.length - 1;
+
+                    const row = {
+                        'Id': message.Id,
+                        'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
+                        'botMessage': message.botMessage || '',
+                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
+                    };
+
+                    unannotatedData.push(row);
+                });
+            }
+        });
+
+        if (unannotatedData.length === 0) {
+            showStatus('✅ All conversations have been annotated!', 'success');
+            showLoading(false);
+            return;
+        }
+
+        const ws = XLSX.utils.json_to_sheet(unannotatedData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Unannotated");
+
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+        const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const unannotatedCount = tool.conversations.filter(conv => {
+            const convId = conv[0].Id;
+            const annotations = tool.annotations[convId];
+            return !annotations || Object.keys(annotations).length === 0;
+        }).length;
+        a.download = `unannotated_conversations_${unannotatedCount}_remaining_${timestamp}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showStatus(`✅ Downloaded ${unannotatedCount} unannotated conversations!`, 'success');
     } catch (error) {
         console.error('Download error:', error);
         showStatus('❌ Error downloading file', 'error');
