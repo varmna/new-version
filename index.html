@@ -746,7 +746,6 @@ animation: spin 1s linear infinite;
             <span class="annotated-count" id="annotated-count">0 Annotated</span>
         </div>
         <button id="exit-btn" class="btn btn-outline">🚪 Exit Tool</button>
-    <button id="reassign-btn" class="btn btn-outline">🔄 Export Unannotated</button>
         <button id="download-btn" class="btn btn-primary">📥 Download</button>
     </div>
 </div>
@@ -1194,11 +1193,13 @@ elements.progressBar.innerHTML = '';
 console.log('Tool reset complete');
 }
 
+// Add these event listeners after your elements object definition
 elements.uploadBox.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     elements.fileInput.click();
 });
+
 elements.fileInput.addEventListener('click', (e) => {
     e.stopPropagation();
 });
@@ -1221,6 +1222,12 @@ elements.fileInput.addEventListener('change', async (event) => {
         showLoading(true);
         console.log('Processing file:', file.name);
         
+        // Check for username first
+        if (!tool.userName) {
+            showLoginModal();
+            return;
+        }
+        
         tool.fileName = file.name.replace('.xlsx', '');
         const data = await readExcelFile(file);
         
@@ -1229,15 +1236,9 @@ elements.fileInput.addEventListener('change', async (event) => {
         }
 
         processExcelData(data);
-        
-        // Show login modal if username not set
-        if (!tool.userName) {
-            showLoginModal();
-        } else {
-            elements.uploadScreen.style.display = 'none';
-            elements.mainInterface.style.display = 'flex';
-            showStatus('✅ File loaded successfully!', 'success');
-        }
+        elements.uploadScreen.style.display = 'none';
+        elements.mainInterface.style.display = 'flex';
+        showStatus('✅ File loaded successfully!', 'success');
     } catch (error) {
         console.error('Error processing file:', error);
         showStatus('❌ Error: ' + (error.message || 'Failed to load file'), 'error');
@@ -1649,7 +1650,9 @@ elements.downloadBtn.addEventListener('click', async () => {
                         'Id': message.Id,
                         'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
                         'botMessage': message.botMessage || '',
-                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
+                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : '',
+                        'Login': tool.userName, // Add login to every row
+                        'Timestamp': savedAnnotations['Timestamp'] || '' // Add timestamp to every row
                     };
 
                     // Add annotations only to the first message
@@ -1668,10 +1671,6 @@ elements.downloadBtn.addEventListener('click', async () => {
                         row['Other Queries'] = savedAnnotations['Other Queries'] || '';
                         row['Overall Observations'] = savedAnnotations['Overall Observations'] || '';
                     }
-
-                    // Add Login and Timestamp to every row
-                    row['Login'] = tool.userName;
-                    row['Timestamp'] = savedAnnotations['Timestamp'] || '';
 
                     annotatedData.push(row);
                 });
@@ -1775,7 +1774,6 @@ displayConversation();
 showStatus('⚠️ This is the last conversation', 'warning');
 }
 });
-elements.reassignBtn.addEventListener('click', () => reassignUnfinishedWork());
 
 elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
 
