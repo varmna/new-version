@@ -627,82 +627,82 @@ animation: spin 1s linear infinite;
 0% { transform: rotate(0deg); }
 100% { transform: rotate(360deg); }
 }
-    .user-display {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+
+.user-display {
+display: flex;
+align-items: center;
+gap: 8px;
 }
 
 #edit-username-btn {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: transparent;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
+padding: 4px 8px;
+font-size: 12px;
+background: transparent;
+border: 1px solid var(--primary-color);
+color: var(--primary-color);
 }
 
 #edit-username-btn:hover {
-    background: var(--primary-color);
-    color: white;
+background: var(--primary-color);
+color: white;
 }
 
-    /* Add these new styles at the end of your existing CSS */
 .login-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 2000;
 }
 
 .login-modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
+background: white;
+padding: 30px;
+border-radius: 8px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+max-width: 400px;
+width: 100%;
+text-align: center;
 }
 
 .login-modal-content h2 {
-    margin-bottom: 20px;
+margin-bottom: 20px;
 }
 
 .login-modal-content input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    margin-bottom: 20px;
+width: 100%;
+padding: 10px;
+border: 1px solid var(--border-color);
+border-radius: 4px;
+margin-bottom: 20px;
 }
 
 .login-modal-content button {
-    width: 100%;
-    padding: 10px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+width: 100%;
+padding: 10px;
+background: var(--primary-color);
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
 }
 
 .login-modal-content button:hover {
-    background: #0056b3;
+background: #0056b3;
 }
 
 .user-display {
-    padding: 8px 12px;
-    background: #e3f2fd;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--primary-color);
+padding: 8px 12px;
+background: #e3f2fd;
+border-radius: 4px;
+font-size: 14px;
+font-weight: 500;
+color: var(--primary-color);
 }
 </style>
 </head>
@@ -874,10 +874,11 @@ staticComments: {
     "Overall Observations": []
 }
 };
-    function showLoginModal() {
+
+function showLoginModal() {
     document.getElementById('login-modal').style.display = 'flex';
     const nameInput = document.getElementById('login-name');
-    nameInput.value = tool.userName || ''; // Pre-fill existing username if editing
+    nameInput.value = tool.userName || '';
     nameInput.focus();
 }
 
@@ -891,7 +892,6 @@ function handleLogin() {
         document.getElementById('user-name-display').textContent = name;
         localStorage.setItem('annotator_username', name);
         
-        // Show main interface if file is loaded
         if (tool.conversations.length > 0) {
             elements.uploadScreen.style.display = 'none';
             elements.mainInterface.style.display = 'flex';
@@ -904,30 +904,25 @@ function handleLogin() {
     }
 }
 
-
-// AFTER (fixed code)
 document.getElementById('login-submit').addEventListener('click', () => {
     if (handleLogin() && !tool.conversations.length) {
-        elements.fileInput.click(); // Only open file browser if no file is loaded
+        elements.fileInput.click();
     }
 });
 
 document.getElementById('login-name').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         if (handleLogin() && !tool.conversations.length) {
-            elements.fileInput.click(); // Only open file browser if no file is loaded
+            elements.fileInput.click();
         }
     }
 });
 
-
-// Add this to check for saved username
 const savedUsername = localStorage.getItem('annotator_username');
 if (savedUsername) {
     tool.userName = savedUsername;
     document.getElementById('user-name-display').textContent = savedUsername;
 }
-
 
 const elements = {
     uploadScreen: document.getElementById('upload-screen'),
@@ -950,8 +945,7 @@ const elements = {
     annotatedCount: document.getElementById('annotated-count'),
     unsavedIndicator: document.getElementById('unsaved-indicator'),
     statusMessage: document.getElementById('status-message'),
-    loadingSpinner: document.getElementById('loading-spinner'),
-    reassignBtn: document.getElementById('reassign-btn')  // Fixed the comma and added this line
+    loadingSpinner: document.getElementById('loading-spinner')
 };
 
 function createFeedbackForm() {
@@ -983,7 +977,6 @@ function createFeedbackForm() {
         <div class="checkbox-list">
     `;
 
-    // Add category checkboxes (excluding Bot Response, HVA)
     tool.buckets.slice(2, -1).forEach((bucket, idx) => {
         html += `
         <div class="checkbox-item">
@@ -1010,7 +1003,6 @@ function createFeedbackForm() {
         html += `</div>`;
     });
 
-    // Add Overall Observations section at the end
     html += `
         </div>
     </div>
@@ -1027,8 +1019,6 @@ function createFeedbackForm() {
     elements.feedbackForm.innerHTML = html;
 }
 
-
-
 window.toggleBucketDetails = function(bucket) {
 const checkbox = document.querySelector(`input[value="${bucket}"]`);
 const details = document.getElementById(`details-${bucket}`);
@@ -1039,740 +1029,1245 @@ markUnsaved();
 details.style.display = 'none';
 const selects = details.querySelectorAll('select');
 const textareas = details.querySelectorAll('textarea');
-selects.forEach(s => s.value = '');
+selects.
+    forEach(s => s.value = '');
+
 textareas.forEach(t => t.value = '');
+
 markUnsaved();
+
 }
+
 };
 
 window.markUnsaved = function() {
+
 tool.hasUnsavedChanges = true;
+
 elements.unsavedIndicator.classList.add('show');
+
 };
 
 function clearUnsaved() {
+
 tool.hasUnsavedChanges = false;
+
 elements.unsavedIndicator.classList.remove('show');
+
 }
 
 // Local Storage Functions
+
 function saveToLocalStorage() {
+
 try {
+
 const dataToSave = {
+
 fileName: tool.fileName,
+
 annotations: tool.annotations,
+
 currentIndex: tool.currentIndex,
+
 totalConversations: tool.conversations.length,
+
 conversations: tool.conversations,
+
 timestamp: new Date().toISOString()
+
 };
-const storageKey = `annotator_${tool.fileName}`;
+
+const storageKey = annotator_${tool.fileName};
+
 localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+
 localStorage.setItem('annotator_active_session', tool.fileName);
+
 console.log('✅ Data saved to local storage');
+
 } catch (error) {
+
 console.error('❌ Failed to save to local storage:', error);
+
 }
+
 }
 
 function loadFromLocalStorage(fileName) {
+
 try {
-const storageKey = `annotator_${fileName}`;
+
+const storageKey = annotator_${fileName};
+
 const savedData = localStorage.getItem(storageKey);
+
 if (savedData) {
+
 const parsed = JSON.parse(savedData);
 
-// Validate the parsed data
 if (!parsed.conversations || !Array.isArray(parsed.conversations) || parsed.conversations.length === 0) {
+
 console.error('Invalid saved data structure');
+
 return false;
+
 }
 
 tool.annotations = parsed.annotations || {};
+
 tool.currentIndex = parsed.currentIndex || 0;
+
 tool.conversations = parsed.conversations || [];
+
 tool.fileName = parsed.fileName || fileName;
 
-// Validate currentIndex
 if (tool.currentIndex >= tool.conversations.length) {
+
 tool.currentIndex = 0;
+
 }
 
 console.log('✅ Data loaded from local storage');
+
 return true;
+
 }
+
 } catch (error) {
+
 console.error('❌ Failed to load from local storage:', error);
+
 }
+
 return false;
+
 }
 
 function checkActiveSession() {
+
 try {
+
 const activeSession = localStorage.getItem('annotator_active_session');
+
 if (activeSession) {
+
 const loaded = loadFromLocalStorage(activeSession);
+
 if (loaded && tool.conversations && tool.conversations.length > 0) {
-// Validate the loaded data
+
 if (!Array.isArray(tool.conversations)) {
+
 console.error('Invalid conversations data');
+
 return false;
+
 }
 
-// Ensure currentIndex is valid
 if (tool.currentIndex < 0 || tool.currentIndex >= tool.conversations.length) {
+
 tool.currentIndex = 0;
+
 }
 
 elements.uploadScreen.style.display = 'none';
+
 elements.mainInterface.style.display = 'flex';
+
 elements.jumpInput.max = tool.conversations.length;
 
 createFeedbackForm();
+
 updateProgressBar();
+
 displayConversation();
+
 updateAnnotatedCount();
+
 showStatus('📂 Previous session restored!', 'success');
+
 return true;
+
 }
+
 }
+
 } catch (error) {
+
 console.error('❌ Failed to check active session:', error);
+
 showStatus('⚠️ Session restore failed. Please upload your file again.', 'warning');
+
 clearLocalStorage();
+
 }
+
 return false;
+
 }
 
 function clearLocalStorage() {
+
 try {
-const storageKey = `annotator_${tool.fileName}`;
+
+const storageKey = annotator_${tool.fileName};
+
 localStorage.removeItem(storageKey);
+
 localStorage.removeItem('annotator_active_session');
+
 console.log('🗑️ Local storage cleared');
+
 } catch (error) {
+
 console.error('❌ Failed to clear local storage:', error);
+
 }
+
 }
 
 function exitTool() {
+
 console.log('Exit tool clicked - redirecting to upload page');
 
-// Check for unsaved changes
 if (tool.hasUnsavedChanges) {
+
 const save = confirm('⚠️ You have unsaved changes!\n\nClick OK to save before exiting, or Cancel to exit without saving.');
+
 if (save) {
+
 saveToLocalStorage();
+
 showStatus('💾 Changes saved!', 'success');
-}
+
 }
 
-// Auto-save current state before exiting
+}
+
 saveToLocalStorage();
 
-// Redirect to upload screen
 showStatus('👋 Returning to upload screen...', 'info');
+
 setTimeout(() => {
+
 resetTool();
+
 }, 300);
+
 }
 
 function resetTool() {
+
 console.log('Resetting tool...');
+
 tool.currentIndex = 0;
+
 tool.conversations = [];
+
 tool.annotations = {};
+
 tool.hasUnsavedChanges = false;
+
 tool.fileName = '';
+
 clearUnsaved();
+
 elements.mainInterface.style.display = 'none';
+
 elements.uploadScreen.style.display = 'flex';
+
 elements.fileInput.value = '';
+
 elements.conversationDisplay.innerHTML = '';
+
 elements.progressBar.innerHTML = '';
+
 console.log('Tool reset complete');
+
 }
 
-// Add these event listeners after your elements object definition
 elements.uploadBox.addEventListener('click', (e) => {
+
     e.preventDefault();
+
     e.stopPropagation();
+
+    
+
+    if (!tool.userName) {
+
+        showLoginModal();
+
+        return;
+
+    }
+
+    
+
     elements.fileInput.click();
+
 });
 
 elements.fileInput.addEventListener('click', (e) => {
+
     e.stopPropagation();
+
 });
 
 elements.fileInput.addEventListener('change', async (event) => {
+
     console.log('File input change event triggered');
+
     const file = event.target.files[0];
+
     
+
     if (!file) {
+
         showStatus('⚠️ No file selected', 'warning');
+
         return;
+
     }
 
     if (!file.name.endsWith('.xlsx')) {
+
         showStatus('❌ Please select an Excel (.xlsx) file', 'error');
+
         return;
+
+    }
+
+    
+
+    if (!tool.userName) {
+
+        showLoginModal();
+
+        return;
+
     }
 
     try {
+
         showLoading(true);
+
         console.log('Processing file:', file.name);
+
         
-        // Check for username first
-        if (!tool.userName) {
-            showLoginModal();
-            return;
-        }
-        
+
         tool.fileName = file.name.replace('.xlsx', '');
+
         const data = await readExcelFile(file);
+
         
+
         if (!data || data.length === 0) {
+
             throw new Error('No data found in file');
+
         }
 
         processExcelData(data);
+
+        
+
         elements.uploadScreen.style.display = 'none';
+
         elements.mainInterface.style.display = 'flex';
+
         showStatus('✅ File loaded successfully!', 'success');
+
     } catch (error) {
+
         console.error('Error processing file:', error);
+
         showStatus('❌ Error: ' + (error.message || 'Failed to load file'), 'error');
+
     } finally {
+
         showLoading(false);
+
     }
+
 });
 
-
 elements.uploadBox.addEventListener('dragover', (e) => {
+
     e.preventDefault();
+
     e.stopPropagation();
+
     elements.uploadBox.style.background = '#e3f2fd';
+
 });
 
 elements.uploadBox.addEventListener('dragleave', (e) => {
+
     e.preventDefault();
+
     e.stopPropagation();
+
     elements.uploadBox.style.background = '';
+
 });
 
 elements.uploadBox.addEventListener('drop', (e) => {
+
     e.preventDefault();
+
     e.stopPropagation();
+
     elements.uploadBox.style.background = '';
+
     
-    const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.xlsx')) {
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        elements.fileInput.files = dataTransfer.files;
-        elements.fileInput.dispatchEvent(new Event('change'));
+
+    if (!tool.userName) {
+
+        showLoginModal();
+
+        return;
+
     }
+
+    
+
+    const file = e.dataTransfer.files[0];
+
+    if (file && file.name.endsWith('.xlsx')) {
+
+        const dataTransfer = new DataTransfer();
+
+        dataTransfer.items.add(file);
+
+        elements.fileInput.files = dataTransfer.files;
+
+        elements.fileInput.dispatchEvent(new Event('change'));
+
+    }
+
 });
 
 async function readExcelFile(file) {
+
 return new Promise((resolve, reject) => {
+
 const reader = new FileReader();
+
 reader.onload = (e) => {
+
 try {
+
 const data = new Uint8Array(e.target.result);
+
 const workbook = XLSX.read(data, {type: 'array'});
+
 const sheetName = workbook.SheetNames[0];
+
 const sheet = workbook.Sheets[sheetName];
+
 const jsonData = XLSX.utils.sheet_to_json(sheet);
+
 resolve(jsonData);
+
 } catch (error) {
+
 reject(new Error('Failed to parse Excel file'));
+
 }
+
 };
+
 reader.onerror = () => reject(new Error('Failed to read file'));
+
 reader.readAsArrayBuffer(file);
+
 });
+
 }
 
 function processExcelData(rawData) {
+
 const groupedData = {};
+
 rawData.forEach(row => {
+
 if (!groupedData[row.Id]) {
+
 groupedData[row.Id] = [];
+
 }
+
 groupedData[row.Id].push(row);
+
 });
+
 tool.conversations = Object.values(groupedData);
+
 tool.currentIndex = 0;
+
 tool.annotations = {};
+
 elements.jumpInput.max = tool.conversations.length;
 
 const restored = loadFromLocalStorage(tool.fileName);
+
 saveToLocalStorage();
+
 updateProgressBar();
+
 displayConversation();
+
 updateAnnotatedCount();
 
 if (restored) {
+
 showStatus('📂 Previous work session restored!', 'info');
+
 }
+
 }
 
 function updateProgressBar() {
+
 elements.progressBar.innerHTML = '';
 
 if (!tool.conversations || tool.conversations.length === 0) {
+
 console.log('No conversations to display in progress bar');
+
 return;
+
 }
 
-// Validate current index
 if (tool.currentIndex < 0 || tool.currentIndex >= tool.conversations.length) {
+
 tool.currentIndex = 0;
+
 }
 
 const segmentWidth = 100 / tool.conversations.length;
 
 tool.conversations.forEach((conv, index) => {
+
 const convId = conv[0].Id;
+
 const isAnnotated = tool.annotations[convId] && Object.keys(tool.annotations[convId]).length > 0;
+
 const isCurrent = index === tool.currentIndex;
 
 const segment = document.createElement('div');
-segment.className = `progress-segment ${isAnnotated ? 'annotated' : 'not-annotated'} ${isCurrent ? 'current' : ''}`;
-segment.style.width = `${segmentWidth}%`;
+
+segment.className = progress-segment ${isAnnotated ? 'annotated' : 'not-annotated'} ${isCurrent ? 'current' : ''};
+
+segment.style.width = ${segmentWidth}%;
+
 segment.style.minWidth = '4px';
-segment.title = `Conversation ${index + 1}${isAnnotated ? ' - Annotated ✓' : ' - Not Annotated ⚠'}${isCurrent ? ' (Current)' : ''}`;
+
+segment.title = Conversation ${index + 1}${isAnnotated ? ' - Annotated ✓' : ' - Not Annotated ⚠'}${isCurrent ? ' (Current)' : ''};
+
 segment.dataset.index = index;
+
 segment.id = isCurrent ? 'current-segment' : '';
 
 segment.addEventListener('click', (e) => {
+
 e.stopPropagation();
+
 if (tool.hasUnsavedChanges) {
+
 if (!confirm('You have unsaved changes. Continue without saving?')) {
+
 return;
+
 }
+
 }
+
 tool.currentIndex = index;
+
 displayConversation();
+
 });
 
 elements.progressBar.appendChild(segment);
+
 });
 
-// Auto-scroll to current segment
 setTimeout(() => {
+
 const currentSeg = document.getElementById('current-segment');
+
 if (currentSeg) {
+
 currentSeg.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
 }
+
 }, 100);
+
 }
 
 function displayConversation() {
+
 if (!tool.conversations || tool.conversations.length === 0) {
+
 console.error('No conversations available');
+
 showStatus('❌ No conversations to display', 'error');
+
 return;
+
 }
 
 if (tool.currentIndex < 0 || tool.currentIndex >= tool.conversations.length) {
+
 console.error('Invalid conversation index:', tool.currentIndex);
+
 tool.currentIndex = 0;
+
 }
 
 const conv = tool.conversations[tool.currentIndex];
+
 if (!conv || conv.length === 0) {
+
 console.error('Invalid conversation at index:', tool.currentIndex);
+
 showStatus('❌ Error loading conversation', 'error');
+
 return;
+
 }
 
 const lastMessage = conv[conv.length - 1];
+
 const convId = conv[0].Id;
+
 const isAnnotated = tool.annotations[convId] && Object.keys(tool.annotations[convId]).length > 0;
 
 elements.conversationInfo.innerHTML = `
+
 <div><strong>ID:</strong> ${conv[0].Id}</div>
+
 <div><strong>Feedback:</strong> 
+
 <span class="badge ${lastMessage['Customer Feedback']?.toLowerCase() === 'negative' ? 'badge-danger' : 'badge-success'}">
+
 ${lastMessage['Customer Feedback'] || 'N/A'}
+
 </span>
+
 </div>
+
 `;
 
 elements.annotationStatus.innerHTML = `
+
 <div class="status-indicator ${isAnnotated ? 'status-annotated' : 'status-not-annotated'}">
+
 ${isAnnotated ? '✓ Annotated' : '⚠ Not Annotated'}
+
 </div>
+
 `;
 
 let html = '';
+
 conv.forEach(message => {
+
 if (message.llmGeneratedUserMessage) {
+
 html += `
+
 <div class="message customer">
+
 <div class="message-header">👤 Customer</div>
+
 ${message.llmGeneratedUserMessage}
+
 </div>
+
 `;
+
 }
+
 if (message.botMessage) {
+
 html += `
+
 <div class="message bot">
+
 <div class="message-header">🤖 Bot</div>
+
 ${message.botMessage}
+
 </div>
+
 `;
+
 }
+
 });
 
 elements.conversationDisplay.innerHTML = html;
+
 elements.conversationDisplay.scrollTop = 0;
-elements.progressText.textContent = `${tool.currentIndex + 1}/${tool.conversations.length} Conversations`;
+
+elements.progressText.textContent = ${tool.currentIndex + 1}/${tool.conversations.length} Conversations;
+
 updateProgressBar();
+
 elements.jumpInput.value = '';
+
 loadAnnotations();
+
 clearUnsaved();
+
 }
 
 function updateAnnotatedCount() {
+
 const count = Object.keys(tool.annotations).filter(id => 
+
 Object.keys(tool.annotations[id]).length > 0
+
 ).length;
-elements.annotatedCount.textContent = `${count} Annotated`;
+
+elements.annotatedCount.textContent = ${count} Annotated;
+
 }
 
 function saveCurrentAnnotations() {
+
     if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
+
         showStatus('❌ No conversation loaded', 'error');
+
         return;
+
     }
 
     const convId = tool.conversations[tool.currentIndex][0].Id;
+
     const tempAnnotations = {};
 
     const botResponse = document.querySelector('input[name="bot-response"]:checked');
+
     if (botResponse) {
+
         tempAnnotations["Bot Response"] = botResponse.value;
+
     }
 
     const hvaSelect = document.getElementById('hva-select');
+
     if (hvaSelect.value) {
+
         tempAnnotations["HVA"] = hvaSelect.value;
+
     }
 
-    // Add validation for predefined comments
     let missingPredefinedComment = false;
+
     let bucketWithMissingComment = '';
 
     tool.buckets.slice(2).forEach(bucket => {
-        const checkbox = document.querySelector(`input[value="${bucket}"]`);
+
+        const checkbox = document.querySelectorinput[value="${bucket}"]);
+
         if (checkbox && checkbox.checked) {
+
             if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-                const staticDropdown = document.querySelector(`select[name="${bucket}-static"]`);
+
+                const staticDropdown = document.querySelectorselect[name="${bucket}-static"]);
+
                 const staticValue = staticDropdown ? staticDropdown.value : '';
+
                 
-                // Check if predefined comment is selected
+
                 if (!staticValue) {
+
                     missingPredefinedComment = true;
+
                     bucketWithMissingComment = bucket;
+
                     return;
+
                 }
 
-                const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+                const subTextarea = document.querySelectortextarea[name="${bucket}-sub"]);
+
                 const subValue = subTextarea ? subTextarea.value.trim() : '';
 
                 if (staticValue) {
+
                     let finalValue = staticValue;
+
                     if (subValue) {
+
                         finalValue += ' - ' + subValue;
+
                     }
+
                     tempAnnotations[bucket] = finalValue;
+
                 }
+
             } else {
-                const textarea = document.querySelector(`textarea[name="${bucket}"]`);
+
+                const textarea = document.querySelectortextarea[name="${bucket}"]);
+
                 if (textarea && textarea.value.trim()) {
+
                     tempAnnotations[bucket] = textarea.value.trim();
+
                 }
+
             }
+
         }
+
     });
 
-    // Show error if predefined comment is missing
     if (missingPredefinedComment) {
-        showStatus(`⚠️ Please select a predefined comment for ${bucketWithMissingComment}`, 'warning');
+
+        showStatus⚠️ Please select a predefined comment for ${bucketWithMissingComment}, 'warning');
+
         return;
+
     }
+
     const overallObservations = document.querySelector('textarea[name="overall-observations"]').value.trim();
+
     if (!overallObservations) {
+
         showStatus('⚠️ Please provide overall observations', 'warning');
+
         return;
+
     }
 
     tempAnnotations["Overall Observations"] = overallObservations;
+
     tempAnnotations["Timestamp"] = new Date().toLocaleString();
 
     if (Object.keys(tempAnnotations).length === 0) {
+
         showStatus('⚠️ Please select at least one bucket or provide annotations', 'warning');
+
         return;
+
     }
 
     tool.annotations[convId] = tempAnnotations;
+
     saveToLocalStorage();
+
     clearUnsaved();
+
     updateAnnotatedCount();
+
     updateProgressBar();
 
     const isAnnotated = Object.keys(tempAnnotations).length > 0;
+
     elements.annotationStatus.innerHTML = `
+
         <div class="status-indicator ${isAnnotated ? 'status-annotated' : 'status-not-annotated'}">
+
             ${isAnnotated ? '✓ Annotated' : '⚠ Not Annotated'}
+
         </div>
+
     `;
 
     showStatus('✅ Annotations saved!', 'success');
+
 }
 
-
 function loadAnnotations() {
+
 if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
+
 console.log('No conversation to load annotations for');
+
 return;
+
 }
 
 const convId = tool.conversations[tool.currentIndex][0].Id;
+
 const savedAnnotations = tool.annotations[convId] || {};
 
 document.querySelectorAll('input[name="bot-response"]').forEach(radio => radio.checked = false);
+
 document.getElementById('hva-select').value = '';
+
 document.querySelectorAll('input[name="bucket-checkbox"]').forEach(cb => cb.checked = false);
+
 document.querySelectorAll('.bucket-details').forEach(details => details.style.display = 'none');
+
 document.querySelectorAll('select[name*="-static"]').forEach(sel => sel.value = '');
+
 document.querySelectorAll('textarea').forEach(ta => ta.value = '');
 
 if (savedAnnotations["Bot Response"]) {
-const radio = document.querySelector(`input[name="bot-response"][value="${savedAnnotations["Bot Response"]}"]`);
+
+const radio = document.querySelectorinput[name="bot-response"][value="${savedAnnotations["Bot Response"]}"]);
+
 if (radio) radio.checked = true;
+
 }
 
 if (savedAnnotations["HVA"]) {
+
 document.getElementById('hva-select').value = savedAnnotations["HVA"];
+
 }
 
 tool.buckets.slice(2).forEach(bucket => {
+
 if (savedAnnotations[bucket]) {
-const checkbox = document.querySelector(`input[value="${bucket}"]`);
+
+const checkbox = document.querySelectorinput[value="${bucket}"]);
+
 if (checkbox) {
+
 checkbox.checked = true;
-const details = document.getElementById(`details-${bucket}`);
+
+const details = document.getElementByIddetails-${bucket});
+
 if (details) details.style.display = 'block';
+
 }
 
 if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+
 const parts = savedAnnotations[bucket].split(' - ');
+
 const staticValue = parts[0];
+
 const subValue = parts.slice(1).join(' - ');
 
-const staticDropdown = document.querySelector(`select[name="${bucket}-static"]`);
-const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+const staticDropdown = document.querySelectorselect[name="${bucket}-static"]);
+
+const subTextarea = document.querySelectortextarea[name="${bucket}-sub"]);
 
 if (staticDropdown) staticDropdown.value = staticValue;
+
 if (subTextarea) subTextarea.value = subValue;
+
 } else {
-const textarea = document.querySelector(`textarea[name="${bucket}"]`);
+
+const textarea = document.querySelectortextarea[name="${bucket}"]);
+
 if (textarea) textarea.value = savedAnnotations[bucket];
+
 }
+
 }
+
 });
+
 }
 
 function showStatus(message, type) {
+
 elements.statusMessage.textContent = message;
-elements.statusMessage.className = `status-message status-${type}`;
+
+elements.statusMessage.className = status-message status-${type};
+
 elements.statusMessage.style.display = 'block';
+
 setTimeout(() => {
+
 elements.statusMessage.style.display = 'none';
+
 }, 3000);
+
 }
 
 function showLoading(show) {
+
 elements.loadingSpinner.style.display = show ? 'flex' : 'none';
+
 }
 
 function jumpToConversation() {
+
 const jumpValue = parseInt(elements.jumpInput.value);
+
 if (!jumpValue || jumpValue < 1 || jumpValue > tool.conversations.length) {
+
 showStatus('⚠️ Invalid conversation number', 'warning');
+
 return;
+
 }
 
 if (tool.hasUnsavedChanges) {
+
 if (!confirm('You have unsaved changes. Continue without saving?')) {
+
 return;
+
 }
+
 }
 
 tool.currentIndex = jumpValue - 1;
+
 displayConversation();
+
 }
 
 function s2ab(s) {
+
 const buf = new ArrayBuffer(s.length);
+
 const view = new Uint8Array(buf);
+
 for (let i = 0; i < s.length; i++) {
+
 view[i] = s.charCodeAt(i) & 0xFF;
+
 }
+
 return buf;
+
 }
 
 elements.downloadBtn.addEventListener('click', async () => {
+
     try {
+
         if (Object.keys(tool.annotations).length === 0) {
+
             showStatus('⚠️ No annotations to download', 'warning');
+
             return;
+
         }
 
         showLoading(true);
 
         const annotatedData = [];
+
+        const currentTimestamp = new Date().toLocaleString();
+
+        
+
         tool.conversations.forEach(conv => {
+
             const convId = conv[0].Id;
+
             const savedAnnotations = tool.annotations[convId];
 
             if (savedAnnotations && Object.keys(savedAnnotations).length > 0) {
+
                 conv.forEach((message, index) => {
+
                     const isFirstMessage = index === 0;
+
                     const isLastMessage = index === conv.length - 1;
 
-                    // Base row structure with original data
                     const row = {
+
                         'Id': message.Id,
+
                         'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
+
                         'botMessage': message.botMessage || '',
-                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : '',
-                        'Login': tool.userName, // Add login to every row
-                        'Timestamp': savedAnnotations['Timestamp'] || '' // Add timestamp to every row
+
+                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
+
                     };
 
-                    // Add annotations only to the first message
                     if (isFirstMessage) {
+
                         row['Bot Response'] = savedAnnotations['Bot Response'] || '';
+
                         row['HVA'] = savedAnnotations['HVA'] || '';
+
                         row['AB feature/HVA Related Query'] = savedAnnotations['AB feature/HVA Related Query'] || '';
+
                         row['Personalized/Account-Specific Queries'] = savedAnnotations['Personalized/Account-Specific Queries'] || '';
+
                         row['Bot Limitations'] = savedAnnotations['Bot Limitations'] || '';
+
                         row['Pre order Query'] = savedAnnotations['Pre order Query'] || '';
+
                         row['Promo & Freebie Related Queries'] = savedAnnotations['Promo & Freebie Related Queries'] || '';
+
                         row['Help-page/Direct Customer Service'] = savedAnnotations['Help-page/Direct Customer Service'] || '';
+
                         row['BP for Non-Profit Organisation Related Query'] = savedAnnotations['BP for Non-Profit Organisation Related Query'] || '';
+
                         row['Personal Prime Related Query'] = savedAnnotations['Personal Prime Related Query'] || '';
+
                         row['Customer Behavior'] = savedAnnotations['Customer Behavior'] || '';
+
                         row['Other Queries'] = savedAnnotations['Other Queries'] || '';
+
                         row['Overall Observations'] = savedAnnotations['Overall Observations'] || '';
+
+                    } else {
+
+                        row['Bot Response'] = '';
+
+                        row['HVA'] = '';
+
+                        row['AB feature/HVA Related Query'] = '';
+
+                        row['Personalized/Account-Specific Queries'] = '';
+
+                        row['Bot Limitations'] = '';
+
+                        row['Pre order Query'] = '';
+
+                        row['Promo & Freebie Related Queries'] = '';
+
+                        row['Help-page/Direct Customer Service'] = '';
+
+                        row['BP for Non-Profit Organisation Related Query'] = '';
+
+                        row['Personal Prime Related Query'] = '';
+
+                        row['Customer Behavior'] = '';
+
+                        row['Other Queries'] = '';
+
+                        row['Overall Observations'] = '';
+
                     }
 
+                    row['Login'] = tool.userName;
+
+                    row['Timestamp'] = savedAnnotations['Timestamp'] || currentTimestamp;
+
                     annotatedData.push(row);
+
                 });
+
             }
+
         });
 
+        if (annotatedData.length === 0) {
+
+            showStatus('⚠️ No annotated conversations to download', 'warning');
+
+            showLoading(false);
+
+            return;
+
+        }
+
         const ws = XLSX.utils.json_to_sheet(annotatedData);
+
         const wb = XLSX.utils.book_new();
+
         XLSX.utils.book_append_sheet(wb, ws, "Annotations");
 
         const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
         const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+
         const url = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
+
         a.href = url;
+
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        a.download = `annotated_conversations_${timestamp}.xlsx`;
+
+        a.download = annotated_conversations_${timestamp}.xlsx;
+
         document.body.appendChild(a);
+
         a.click();
 
         window.URL.revokeObjectURL(url);
+
         document.body.removeChild(a);
 
         showStatus('✅ Downloaded successfully!', 'success');
 
         if (confirm('Do you want to clear the saved session data? (Your downloaded file is safe)')) {
+
             clearLocalStorage();
+
             showStatus('🗑️ Session data cleared', 'info');
+
         }
+
     } catch (error) {
+
+        console.error('Download error:', error);
+
         showStatus('❌ Error downloading file', 'error');
+
     } finally {
+
         showLoading(false);
+
     }
+
 });
-
-
-
-        const ws = XLSX.utils.json_to_sheet(annotatedData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Annotations");
-
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-        const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        a.download = `annotated_conversations_${timestamp}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-        showStatus('✅ Downloaded successfully!', 'success');
-
-        if (confirm('Do you want to clear the saved session data? (Your downloaded file is safe)')) {
-            clearLocalStorage();
-            showStatus('🗑️ Session data cleared', 'info');
-        }
-    } catch (error) {
-        showStatus('❌ Error downloading file', 'error');
-    } finally {
-        showLoading(false);
-    }
-});
-
-
 
 elements.exitBtn.addEventListener('click', exitTool);
 
 elements.prevBtn.addEventListener('click', () => {
+
 if (tool.hasUnsavedChanges) {
+
 if (!confirm('You have unsaved changes. Continue without saving?')) {
+
 return;
+
 }
+
 }
 
 if (tool.currentIndex > 0) {
+
 tool.currentIndex--;
+
 displayConversation();
+
 } else {
+
 showStatus('⚠️ This is the first conversation', 'warning');
+
 }
+
 });
 
 elements.nextBtn.addEventListener('click', () => {
+
 if (tool.hasUnsavedChanges) {
+
 if (!confirm('You have unsaved changes. Continue without saving?')) {
+
 return;
+
 }
+
 }
 
 if (tool.currentIndex < tool.conversations.length - 1) {
+
 tool.currentIndex++;
+
 displayConversation();
+
 } else {
+
 showStatus('⚠️ This is the last conversation', 'warning');
+
 }
+
 });
 
 elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
@@ -1780,59 +2275,69 @@ elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
 elements.jumpBtn.addEventListener('click', jumpToConversation);
 
 elements.jumpInput.addEventListener('keypress', (e) => {
+
     if (e.key === 'Enter') {
+
         jumpToConversation();
+
     }
+
 });
 
-elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
-
-elements.jumpBtn.addEventListener('click', jumpToConversation);
-
-elements.jumpInput.addEventListener('keypress', (e) => {
-if (e.key === 'Enter') {
-jumpToConversation();
-}
-});
-
-// FIXED: Keyboard shortcuts with proper Ctrl+S handling
 document.addEventListener('keydown', (e) => {
+
     if (elements.mainInterface.style.display === 'none') return;
 
-    // Handle Ctrl+S for saving annotations
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();  // Prevent browser's save dialog
-        e.stopPropagation(); // Correct
-        elements.saveBtn.click(); // Trigger save
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        elements.saveBtn.click();
+
         return false;
+
     }
 
-    // Handle arrow key navigation
     if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea, select')) {
-        elements.prevBtn.click();
-    } else if (e.key === 'ArrowRight' && !e.target.matches('input, textarea, select')) {
-        elements.nextBtn.click();
-    }
-}, true); // Use capture phase to catch event earlier
 
+        elements.prevBtn.click();
+
+    } else if (e.key === 'ArrowRight' && !e.target.matches('input, textarea, select')) {
+
+        elements.nextBtn.click();
+
+    }
+
+}, true);
 
 createFeedbackForm();
+
 checkActiveSession();
 
-// Add event listener for edit username button
 document.getElementById('edit-username-btn').addEventListener('click', () => {
+
     showLoginModal();
+
 });
 
 window.addEventListener('beforeunload', (e) => {
+
     if (tool.hasUnsavedChanges) {
+
         e.preventDefault();
+
         e.returnValue = '';
+
     }
+
 });
 
-}); // <-- This is the end of DOMContentLoaded event listener
+});
 
 </script>
+
 </body>
+
 </html>
