@@ -746,6 +746,7 @@ animation: spin 1s linear infinite;
             <span class="annotated-count" id="annotated-count">0 Annotated</span>
         </div>
         <button id="exit-btn" class="btn btn-outline">🚪 Exit Tool</button>
+    <button id="reassign-btn" class="btn btn-outline">🔄 Export Unannotated</button>
         <button id="download-btn" class="btn btn-primary">📥 Download</button>
     </div>
 </div>
@@ -930,27 +931,28 @@ if (savedUsername) {
 
 
 const elements = {
-uploadScreen: document.getElementById('upload-screen'),
-mainInterface: document.getElementById('main-interface'),
-uploadBox: document.getElementById('upload-box'),
-fileInput: document.getElementById('excel-upload'),
-conversationDisplay: document.getElementById('conversation-display'),
-conversationInfo: document.getElementById('conversation-info'),
-annotationStatus: document.getElementById('annotation-status'),
-feedbackForm: document.getElementById('feedback-form'),
-prevBtn: document.getElementById('prev-btn'),
-nextBtn: document.getElementById('next-btn'),
-saveBtn: document.getElementById('save-btn'),
-downloadBtn: document.getElementById('download-btn'),
-exitBtn: document.getElementById('exit-btn'),
-jumpInput: document.getElementById('jump-input'),
-jumpBtn: document.getElementById('jump-btn'),
-progressText: document.getElementById('progress-text'),
-progressBar: document.getElementById('progress-bar'),
-annotatedCount: document.getElementById('annotated-count'),
-unsavedIndicator: document.getElementById('unsaved-indicator'),
-statusMessage: document.getElementById('status-message'),
-loadingSpinner: document.getElementById('loading-spinner')
+    uploadScreen: document.getElementById('upload-screen'),
+    mainInterface: document.getElementById('main-interface'),
+    uploadBox: document.getElementById('upload-box'),
+    fileInput: document.getElementById('excel-upload'),
+    conversationDisplay: document.getElementById('conversation-display'),
+    conversationInfo: document.getElementById('conversation-info'),
+    annotationStatus: document.getElementById('annotation-status'),
+    feedbackForm: document.getElementById('feedback-form'),
+    prevBtn: document.getElementById('prev-btn'),
+    nextBtn: document.getElementById('next-btn'),
+    saveBtn: document.getElementById('save-btn'),
+    downloadBtn: document.getElementById('download-btn'),
+    exitBtn: document.getElementById('exit-btn'),
+    jumpInput: document.getElementById('jump-input'),
+    jumpBtn: document.getElementById('jump-btn'),
+    progressText: document.getElementById('progress-text'),
+    progressBar: document.getElementById('progress-bar'),
+    annotatedCount: document.getElementById('annotated-count'),
+    unsavedIndicator: document.getElementById('unsaved-indicator'),
+    statusMessage: document.getElementById('status-message'),
+    loadingSpinner: document.getElementById('loading-spinner'),
+    reassignBtn: document.getElementById('reassign-btn')  // Fixed the comma and added this line
 };
 
 function createFeedbackForm() {
@@ -1661,6 +1663,60 @@ elements.downloadBtn.addEventListener('click', async () => {
                 });
             }
         });
+        // Add the new function here
+// Add this function after the tool object definition
+function reassignUnfinishedWork() {
+    try {
+        const workbook = XLSX.utils.book_new();
+        const unannotatedData = [];
+
+        tool.conversations.forEach(conv => {
+            const convId = conv[0].Id;
+            const isAnnotated = tool.annotations[convId] && Object.keys(tool.annotations[convId]).length > 0;
+
+            if (!isAnnotated) {
+                // Include all messages from unannotated conversations
+                conv.forEach(message => {
+                    const row = {
+                        'Id': message.Id,
+                        'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
+                        'botMessage': message.botMessage || '',
+                        'Customer Feedback': message['Customer Feedback'] || ''
+                    };
+                    unannotatedData.push(row);
+                });
+            }
+        });
+
+        if (unannotatedData.length === 0) {
+            showStatus('✨ All conversations are annotated!', 'success');
+            return;
+        }
+
+        const ws = XLSX.utils.json_to_sheet(unannotatedData);
+        XLSX.utils.book_append_sheet(workbook, ws, "Unannotated");
+
+        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+        const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        a.download = `unannotated_conversations_${timestamp}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showStatus(`✅ ${unannotatedData.length/2} unannotated conversations exported!`, 'success');
+    } catch (error) {
+        showStatus('❌ Error exporting unannotated conversations', 'error');
+        console.error(error);
+    }
+}
+
 
         const ws = XLSX.utils.json_to_sheet(annotatedData);
         const wb = XLSX.utils.book_new();
@@ -1725,6 +1781,17 @@ displayConversation();
 } else {
 showStatus('⚠️ This is the last conversation', 'warning');
 }
+});
+elements.reassignBtn.addEventListener('click', () => reassignUnfinishedWork());
+
+elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
+
+elements.jumpBtn.addEventListener('click', jumpToConversation);
+
+elements.jumpInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        jumpToConversation();
+    }
 });
 
 elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
