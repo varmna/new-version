@@ -807,7 +807,7 @@ const tool = {
     userName: '', 
     buckets: [
 "Bot Response",
-"HVA",
+"HVA", 
 "AB feature/HVA Related Query",
 "Personalized/Account-Specific Queries",
 "Bot Limitations",
@@ -818,6 +818,7 @@ const tool = {
 "Personal Prime Related Query",
 "Customer Behavior",
 "Other Queries",
+"Overall Observations"
 ],
 hvaOptions: [
 "N/A",
@@ -953,70 +954,75 @@ loadingSpinner: document.getElementById('loading-spinner')
 };
 
 function createFeedbackForm() {
-let html = `
-<div class="form-section">
-<div class="form-section-title">Bot Response</div>
-<div class="radio-group">
-<div class="radio-option">
-<input type="radio" id="accurate" name="bot-response" value="Accurate Response" onchange="markUnsaved()">
-<label for="accurate">Accurate response</label>
-</div>
-<div class="radio-option">
-<input type="radio" id="inaccurate" name="bot-response" value="Inaccurate Response" onchange="markUnsaved()">
-<label for="inaccurate">Inaccurate response</label>
-</div>
-</div>
-</div>
-
-<div class="form-section">
-<div class="form-section-title">Select HVA</div>
-<select class="form-control form-control-compact" id="hva-select" onchange="markUnsaved()">
-<option value="">Select an HVA</option>
-${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-</select>
-</div>
-
-<div class="form-section">
-<div class="form-section-title">Annotation Categories</div>
-<div class="checkbox-list">
-`;
-
-tool.buckets.slice(2).forEach((bucket, idx) => {
-html += `
-<div class="checkbox-item">
-<input type="checkbox" id="bucket-${idx}" name="bucket-checkbox" value="${bucket}" onchange="toggleBucketDetails('${bucket}')">
-<label for="bucket-${idx}">${bucket}</label>
-</div>
-<div class="bucket-details" id="details-${bucket}" style="display: none;">
-`;
-
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-html += `
-<select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
-<option value="">Select a predefined comment...</option>
-${tool.staticComments[bucket].map(comment => `<option value="${comment}">${comment}</option>`).join('')}
-</select>
-<textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Optional: Add ' - ' followed by your additional notes" rows="2" oninput="markUnsaved()"></textarea>
-`;
-} else {
-html += `
-<textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments for ${bucket}" rows="2" oninput="markUnsaved()"></textarea>
-`;
-}
-
-html += `
-</div>
-`;
-});
-    html += `
-        <div class="form-section">
-            <div class="form-section-title">Overall Observations</div>
-            <textarea class="form-control" name="overall-observations" placeholder="Please provide overall observations for this conversation" rows="3" oninput="markUnsaved()"></textarea>
+    let html = `
+    <div class="form-section">
+        <div class="form-section-title">Bot Response</div>
+        <div class="radio-group">
+            <div class="radio-option">
+                <input type="radio" id="accurate" name="bot-response" value="Accurate Response" onchange="markUnsaved()">
+                <label for="accurate">Accurate response</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="inaccurate" name="bot-response" value="Inaccurate Response" onchange="markUnsaved()">
+                <label for="inaccurate">Inaccurate response</label>
+            </div>
         </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Select HVA</div>
+        <select class="form-control form-control-compact" id="hva-select" onchange="markUnsaved()">
+            <option value="">Select an HVA</option>
+            ${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+        </select>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Annotation Categories</div>
+        <div class="checkbox-list">
+    `;
+
+    // Add category checkboxes (excluding Bot Response, HVA, and Overall Observations)
+    tool.buckets.slice(2, -1).forEach((bucket, idx) => {
+        html += `
+        <div class="checkbox-item">
+            <input type="checkbox" id="bucket-${idx}" name="bucket-checkbox" value="${bucket}" onchange="toggleBucketDetails('${bucket}')">
+            <label for="bucket-${idx}">${bucket}</label>
+        </div>
+        <div class="bucket-details" id="details-${bucket}" style="display: none;">
+        `;
+
+        if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+            html += `
+            <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
+                <option value="">Select a predefined comment...</option>
+                ${tool.staticComments[bucket].map(comment => `<option value="${comment}">${comment}</option>`).join('')}
+            </select>
+            <textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Optional: Add ' - ' followed by your additional notes" rows="2" oninput="markUnsaved()"></textarea>
+            `;
+        } else {
+            html += `
+            <textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments for ${bucket}" rows="2" oninput="markUnsaved()"></textarea>
+            `;
+        }
+
+        html += `</div>`;
+    });
+
+    // Add Overall Observations section at the end
+    html += `
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Overall Observations</div>
+        <textarea class="form-control" name="overall-observations" placeholder="Please provide overall observations for this conversation" rows="3" oninput="markUnsaved()"></textarea>
+    </div>
     `;
 
     elements.feedbackForm.innerHTML = html;
 }
+
 
 window.toggleBucketDetails = function(bucket) {
 const checkbox = document.querySelector(`input[value="${bucket}"]`);
@@ -1472,7 +1478,7 @@ function saveCurrentAnnotations() {
         showStatus(`⚠️ Please select a predefined comment for ${bucketWithMissingComment}`, 'warning');
         return;
     }
-    const overallObservations = document.querySelector('textarea[name="overall-observations"]').value.trim();
+   const overallObservations = document.querySelector('textarea[name="overall-observations"]').value.trim();
 if (!overallObservations) {
     showStatus('⚠️ Please provide overall observations', 'warning');
     return;
@@ -1603,7 +1609,6 @@ elements.downloadBtn.addEventListener('click', async () => {
 
         showLoading(true);
 
-
         const annotatedData = [];
         tool.conversations.forEach(conv => {
             const convId = conv[0].Id;
@@ -1622,29 +1627,36 @@ elements.downloadBtn.addEventListener('click', async () => {
                         'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
                     };
 
+                    if (isFirstMessage) {
+                        // Add annotations in specific order
+                        row['Bot Response'] = savedAnnotations['Bot Response'] || '';
+                        row['HVA'] = savedAnnotations['HVA'] || '';
+                        row['AB feature/HVA Related Query'] = savedAnnotations['AB feature/HVA Related Query'] || '';
+                        row['Personalized/Account-Specific Queries'] = savedAnnotations['Personalized/Account-Specific Queries'] || '';
+                        row['Bot Limitations'] = savedAnnotations['Bot Limitations'] || '';
+                        row['Pre order Query'] = savedAnnotations['Pre order Query'] || '';
+                        row['Promo & Freebie Related Queries'] = savedAnnotations['Promo & Freebie Related Queries'] || '';
+                        row['Help-page/Direct Customer Service'] = savedAnnotations['Help-page/Direct Customer Service'] || '';
+                        row['BP for Non-Profit Organisation Related Query'] = savedAnnotations['BP for Non-Profit Organisation Related Query'] || '';
+                        row['Personal Prime Related Query'] = savedAnnotations['Personal Prime Related Query'] || '';
+                        row['Customer Behavior'] = savedAnnotations['Customer Behavior'] || '';
+                        row['Other Queries'] = savedAnnotations['Other Queries'] || '';
+                        row['Overall Observations'] = savedAnnotations['Overall Observations'] || '';
+                        row['Login'] = tool.userName;
+                        row['Timestamp'] = savedAnnotations['Timestamp'] || '';
+                    } else {
+                        // For non-first messages, add empty values for all annotation columns
+                        tool.buckets.forEach(bucket => {
+                            row[bucket] = '';
+                        });
+                        row['Login'] = '';
+                        row['Timestamp'] = '';
+                    }
 
-                 if (isFirstMessage) {
-    // Add all bucket annotations at the end
-    tool.buckets.forEach(bucket => {
-        row[bucket] = savedAnnotations[bucket] || '';
-    });
-} else {
-    // For non-first messages, add empty values for annotations
-    tool.buckets.forEach(bucket => {
-        row[bucket] = '';
-    });
-}
-// Add Login, Date, and Timestamp fields
-// Add Login and Timestamp fields
-row['Login'] = tool.userName;
-row['Timestamp'] = savedAnnotations["Timestamp"] || '';
-
-annotatedData.push(row);
-                });  // Close the conv.forEach
-            }        // Close the if statement
-        });         // Close the tool.conversations.forEach
-
-
+                    annotatedData.push(row);
+                });
+            }
+        });
 
         const ws = XLSX.utils.json_to_sheet(annotatedData);
         const wb = XLSX.utils.book_new();
@@ -1676,6 +1688,7 @@ annotatedData.push(row);
         showLoading(false);
     }
 });
+
 
 
 elements.exitBtn.addEventListener('click', exitTool);
