@@ -1194,29 +1194,40 @@ elements.progressBar.innerHTML = '';
 console.log('Tool reset complete');
 }
 
-elements.uploadBox.addEventListener('click', () => {
-    console.log('Upload box clicked');  // Add this line
+elements.uploadBox.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     elements.fileInput.click();
+});
+elements.fileInput.addEventListener('click', (e) => {
+    e.stopPropagation();
 });
 
 elements.fileInput.addEventListener('change', async (event) => {
-    console.log('File selected:', event.target.files[0]); // Add this line
+    console.log('File input change event triggered');
     const file = event.target.files[0];
+    
     if (!file) {
         showStatus('⚠️ No file selected', 'warning');
         return;
     }
+
     if (!file.name.endsWith('.xlsx')) {
         showStatus('❌ Please select an Excel (.xlsx) file', 'error');
         return;
     }
+
     try {
         showLoading(true);
+        console.log('Processing file:', file.name);
+        
         tool.fileName = file.name.replace('.xlsx', '');
         const data = await readExcelFile(file);
+        
         if (!data || data.length === 0) {
             throw new Error('No data found in file');
         }
+
         processExcelData(data);
         
         // Show login modal if username not set
@@ -1228,6 +1239,7 @@ elements.fileInput.addEventListener('change', async (event) => {
             showStatus('✅ File loaded successfully!', 'success');
         }
     } catch (error) {
+        console.error('Error processing file:', error);
         showStatus('❌ Error: ' + (error.message || 'Failed to load file'), 'error');
     } finally {
         showLoading(false);
@@ -1236,22 +1248,29 @@ elements.fileInput.addEventListener('change', async (event) => {
 
 
 elements.uploadBox.addEventListener('dragover', (e) => {
-e.preventDefault();
-elements.uploadBox.style.background = '#e3f2fd';
+    e.preventDefault();
+    e.stopPropagation();
+    elements.uploadBox.style.background = '#e3f2fd';
 });
 
-elements.uploadBox.addEventListener('dragleave', () => {
-elements.uploadBox.style.background = '';
+elements.uploadBox.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    elements.uploadBox.style.background = '';
 });
 
 elements.uploadBox.addEventListener('drop', (e) => {
-e.preventDefault();
-elements.uploadBox.style.background = '';
-const file = e.dataTransfer.files[0];
-if (file && file.name.endsWith('.xlsx')) {
-elements.fileInput.files = e.dataTransfer.files;
-elements.fileInput.dispatchEvent(new Event('change'));
-}
+    e.preventDefault();
+    e.stopPropagation();
+    elements.uploadBox.style.background = '';
+    
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.xlsx')) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        elements.fileInput.files = dataTransfer.files;
+        elements.fileInput.dispatchEvent(new Event('change'));
+    }
 });
 
 async function readExcelFile(file) {
