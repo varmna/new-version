@@ -1521,7 +1521,18 @@ function saveCurrentAnnotations() {
     `;
 
     showStatus('✅ Annotations saved!', 'success');
+
+    // Add automatic navigation to next conversation
+    setTimeout(() => {
+        if (tool.currentIndex < tool.conversations.length - 1) {
+            tool.currentIndex++;
+            displayConversation();
+        } else {
+            showStatus('🎉 All conversations have been reviewed!', 'success');
+        }
+    }, 500); // Short delay to allow the save message to be visible
 }
+
 
 function loadAnnotations() {
 if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
