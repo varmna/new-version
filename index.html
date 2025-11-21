@@ -1551,55 +1551,64 @@ function saveCurrentAnnotations() {
 
 
 function loadAnnotations() {
-if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
-console.log('No conversation to load annotations for');
-return;
-}
+    if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
+        console.log('No conversation to load annotations for');
+        return;
+    }
 
-const convId = tool.conversations[tool.currentIndex][0].Id;
-const savedAnnotations = tool.annotations[convId] || {};
+    const convId = tool.conversations[tool.currentIndex][0].Id;
+    const savedAnnotations = tool.annotations[convId] || {};
 
-document.querySelectorAll('input[name="bot-response"]').forEach(radio => radio.checked = false);
-document.getElementById('hva-select').value = '';
-document.querySelectorAll('input[name="bucket-checkbox"]').forEach(cb => cb.checked = false);
-document.querySelectorAll('.bucket-details').forEach(details => details.style.display = 'none');
-document.querySelectorAll('select[name*="-static"]').forEach(sel => sel.value = '');
-document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+    // Clear all previous annotations
+    document.querySelectorAll('input[name="bot-response"]').forEach(radio => radio.checked = false);
+    document.getElementById('hva-select').value = '';
+    document.querySelectorAll('input[name="bucket-checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.bucket-details').forEach(details => details.style.display = 'none');
+    document.querySelectorAll('select[name*="-static"]').forEach(sel => sel.value = '');
+    document.querySelectorAll('textarea').forEach(ta => ta.value = '');
 
-if (savedAnnotations["Bot Response"]) {
-const radio = document.querySelector(`input[name="bot-response"][value="${savedAnnotations["Bot Response"]}"]`);
-if (radio) radio.checked = true;
-}
+    // Load Bot Response
+    if (savedAnnotations["Bot Response"]) {
+        const radio = document.querySelector(`input[name="bot-response"][value="${savedAnnotations["Bot Response"]}"]`);
+        if (radio) radio.checked = true;
+    }
 
-if (savedAnnotations["HVA"]) {
-document.getElementById('hva-select').value = savedAnnotations["HVA"];
-}
+    // LoaLoad HVA
+    if (savedAnnotations["HVA"]) {
+        document.getElementById('hva-select').value = savedAnnotations["HVA"];
+    }
 
-tool.buckets.slice(2).forEach(bucket => {
-if (savedAnnotations[bucket]) {
-const checkbox = document.querySelector(`input[value="${bucket}"]`);
-if (checkbox) {
-checkbox.checked = true;
-const details = document.getElementById(`details-${bucket}`);
-if (details) details.style.display = 'block';
-}
+    // Load Overall Observations
+    if (savedAnnotations["Overall Observations"]) {
+        document.querySelector('textarea[name="overall-observations"]').value = savedAnnotations["Overall Observations"];
+    }
 
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-const parts = savedAnnotations[bucket].split(' - ');
-const staticValue = parts[0];
-const subValue = parts.slice(1).join(' - ');
+    // Load other bucket annotations
+    tool.buckets.slice(2).forEach(bucket => {
+        if (savedAnnotations[bucket]) {
+            const checkbox = document.querySelector(`input[value="${bucket}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+                const details = document.getElementById(`details-${bucket}`);
+                if (details) details.style.display = 'block';
+            }
 
-const staticDropdown = document.querySelector(`select[name="${bucket}-static"]`);
-const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+            if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+                const parts = savedAnnotations[bucket].split(' - ');
+                const staticValue = parts[0];
+                const subValue = parts.slice(1).join(' - ');
 
-if (staticDropdown) staticDropdown.value = staticValue;
-if (subTextarea) subTextarea.value = subValue;
-} else {
-const textarea = document.querySelector(`textarea[name="${bucket}"]`);
-if (textarea) textarea.value = savedAnnotations[bucket];
-}
-}
-});
+                const staticDropdown = document.querySelector(`select[name="${bucket}-static"]`);
+                const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+
+                if (staticDropdown) staticDropdown.value = staticValue;
+                if (subTextarea) subTextarea.value = subValue;
+            } else {
+                const textarea = document.querySelector(`textarea[name="${bucket}"]`);
+                if (textarea) textarea.value = savedAnnotations[bucket];
+            }
+        }
+    });
 }
 
 function showStatus(message, type) {
