@@ -112,12 +112,13 @@ color: var(--text-secondary);
 }
 
 .annotated-count {
-font-size: 13px;
-padding: 4px 10px;
-background: #e7f3ff;
-color: #0066cc;
-border-radius: 4px;
-font-weight: 500;
+    font-size: 13px;
+    padding: 4px 10px;
+    background: #e7f3ff;
+    color: #0066cc;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .content-wrapper {
@@ -1428,11 +1429,26 @@ clearUnsaved();
 }
 
 function updateAnnotatedCount() {
-const count = Object.keys(tool.annotations).filter(id => 
-Object.keys(tool.annotations[id]).length > 0
-).length;
-elements.annotatedCount.textContent = `${count} Annotated`;
+    // Count annotated conversations
+    const annotatedConversations = Object.keys(tool.annotations).filter(id => 
+        Object.keys(tool.annotations[id]).length > 0
+    ).length;
+
+    // Count chats in annotated conversations
+    let annotatedChats = 0;
+    tool.conversations.forEach(conv => {
+        const convId = conv[0].Id;
+        if (tool.annotations[convId] && Object.keys(tool.annotations[convId]).length > 0) {
+            // Count customer queries in this annotated conversation
+            const customerMessages = conv.filter(message => message.llmGeneratedUserMessage).length;
+            annotatedChats += customerMessages;
+        }
+    });
+
+    // Update the display
+    elements.annotatedCount.textContent = `${annotatedConversations} Conversations | ${annotatedChats} Chats Annotated`;
 }
+
 
 function saveCurrentAnnotations() {
     if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
