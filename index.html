@@ -1642,50 +1642,28 @@ elements.downloadBtn.addEventListener('click', async () => {
             const savedAnnotations = tool.annotations[convId];
 
             if (savedAnnotations && Object.keys(savedAnnotations).length > 0) {
-                conv.forEach((message, index) => {
-                    const isFirstMessage = index === 0;
-                    const isLastMessage = index === conv.length - 1;
-
+                conv.forEach((message) => {
                     const row = {
                         'Id': message.Id,
                         'llmGeneratedUserMessage': message.llmGeneratedUserMessage || '',
                         'botMessage': message.botMessage || '',
-                        'Customer Feedback': isLastMessage ? message['Customer Feedback'] || '' : ''
+                        'Customer Feedback': message['Customer Feedback'] || '',
+                        'Bot Response': savedAnnotations['Bot Response'] || '',
+                        'HVA': savedAnnotations['HVA'] || '',
+                        'AB feature/HVA Related Query': savedAnnotations['AB feature/HVA Related Query'] || '',
+                        'Personalized/Account-Specific Queries': savedAnnotations['Personalized/Account-Specific Queries'] || '',
+                        'Bot Limitations': savedAnnotations['Bot Limitations'] || '',
+                        'Pre order Query': savedAnnotations['Pre order Query'] || '',
+                        'Promo & Freebie Related Queries': savedAnnotations['Promo & Freebie Related Queries'] || '',
+                        'Help-page/Direct Customer Service': savedAnnotations['Help-page/Direct Customer Service'] || '',
+                        'BP for Non-Profit Organisation Related Query': savedAnnotations['BP for Non-Profit Organisation Related Query'] || '',
+                        'Personal Prime Related Query': savedAnnotations['Personal Prime Related Query'] || '',
+                        'Customer Behavior': savedAnnotations['Customer Behavior'] || '',
+                        'Other Queries': savedAnnotations['Other Queries'] || '',
+                        'Overall Observations': savedAnnotations['Overall Observations'] || '',
+                        'Login': tool.userName,
+                        'Timestamp': savedAnnotations['Timestamp'] || currentTimestamp
                     };
-
-                    if (isFirstMessage) {
-                        row['Bot Response'] = savedAnnotations['Bot Response'] || '';
-                        row['HVA'] = savedAnnotations['HVA'] || '';
-                        row['AB feature/HVA Related Query'] = savedAnnotations['AB feature/HVA Related Query'] || '';
-                        row['Personalized/Account-Specific Queries'] = savedAnnotations['Personalized/Account-Specific Queries'] || '';
-                        row['Bot Limitations'] = savedAnnotations['Bot Limitations'] || '';
-                        row['Pre order Query'] = savedAnnotations['Pre order Query'] || '';
-                        row['Promo & Freebie Related Queries'] = savedAnnotations['Promo & Freebie Related Queries'] || '';
-                        row['Help-page/Direct Customer Service'] = savedAnnotations['Help-page/Direct Customer Service'] || '';
-                        row['BP for Non-Profit Organisation Related Query'] = savedAnnotations['BP for Non-Profit Organisation Related Query'] || '';
-                        row['Personal Prime Related Query'] = savedAnnotations['Personal Prime Related Query'] || '';
-                        row['Customer Behavior'] = savedAnnotations['Customer Behavior'] || '';
-                        row['Other Queries'] = savedAnnotations['Other Queries'] || '';
-                        row['Overall Observations'] = savedAnnotations['Overall Observations'] || '';
-                    } else {
-                        row['Bot Response'] = '';
-                        row['HVA'] = '';
-                        row['AB feature/HVA Related Query'] = '';
-                        row['Personalized/Account-Specific Queries'] = '';
-                        row['Bot Limitations'] = '';
-                        row['Pre order Query'] = '';
-                        row['Promo & Freebie Related Queries'] = '';
-                        row['Help-page/Direct Customer Service'] = '';
-                        row['BP for Non-Profit Organisation Related Query'] = '';
-                        row['Personal Prime Related Query'] = '';
-                        row['Customer Behavior'] = '';
-                        row['Other Queries'] = '';
-                        row['Overall Observations'] = '';
-                    }
-
-                    row['Login'] = tool.userName;
-                    row['Timestamp'] = savedAnnotations['Timestamp'] || currentTimestamp;
-
                     annotatedData.push(row);
                 });
             }
@@ -1728,6 +1706,7 @@ elements.downloadBtn.addEventListener('click', async () => {
         showLoading(false);
     }
 });
+
 
 elements.downloadUnannotatedBtn.addEventListener('click', async () => {
     try {
