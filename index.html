@@ -955,7 +955,7 @@ const elements = {
 function createFeedbackForm() {
     let html = `
     <div class="form-section">
-        <div class="form-section-title">Bot Response</div>
+        <div class="form-section-title">Bot Response <span style="color: var(--error-color);">*</span></div>
         <div class="radio-group">
             <div class="radio-option">
                 <input type="radio" id="accurate" name="bot-response" value="Accurate Response" onchange="markUnsaved()">
@@ -969,7 +969,7 @@ function createFeedbackForm() {
     </div>
 
     <div class="form-section">
-        <div class="form-section-title">Select HVA</div>
+        <div class="form-section-title">Select HVA <span style="color: var(--error-color);">*</span></div>
         <select class="form-control form-control-compact" id="hva-select" onchange="markUnsaved()">
             <option value="">Select an HVA</option>
             ${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
@@ -1453,6 +1453,17 @@ function updateAnnotatedCount() {
 function saveCurrentAnnotations() {
     if (!tool.conversations || tool.conversations.length === 0 || !tool.conversations[tool.currentIndex]) {
         showStatus('❌ No conversation loaded', 'error');
+        return;
+    }
+    const botResponse = document.querySelector('input[name="bot-response"]:checked');
+    if (!botResponse) {
+        showStatus('⚠️ Please select a Bot Response (Accurate/Inaccurate)', 'warning');
+        return;
+    }
+
+    const hvaSelect = document.getElementById('hva-select');
+    if (!hvaSelect.value) {
+        showStatus('⚠️ Please select an HVA option', 'warning');
         return;
     }
 
