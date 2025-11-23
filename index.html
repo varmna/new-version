@@ -929,7 +929,7 @@ if (tool.annotations[cid] && Object.keys(tool.annotations[cid]).length > 0) {
 chats += conv.filter(m => m.llmGeneratedUserMessage).length;
 }
 });
-elements.annotatedCount.textContent = `${annConvs} Conv | ${chats} Chats`;
+elements.annotatedCount.textContent = `${annConvs} Conv | ${chats} Chats Annotated`;
 }
 
 function saveCurrentAnnotations() {
