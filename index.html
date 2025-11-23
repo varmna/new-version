@@ -944,6 +944,8 @@ temp["Bot Response"] = botResp.value;
 const hva = document.getElementById('hva-select');
 if (!hva.value) { showStatus('⚠️ Please select HVA', 'warning'); return; }
 temp["HVA"] = hva.value;
+  const anyChecked = document.querySelectorAll('input[name="bucket-checkbox"]:checked').length > 0;
+if (!anyChecked) { showStatus('⚠️ Please select at least one Annotation Category', 'warning'); return; }
 
 let missing = false, missingBucket = '';
 tool.buckets.slice(2, -1).forEach(bucket => {
