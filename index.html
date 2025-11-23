@@ -783,7 +783,7 @@ html += `
 <option value="">Select a predefined comment...</option>
 ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
 </select>
-<textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Optional notes" rows="2" oninput="markUnsaved()"></textarea>`;
+<textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
 } else {
 html += `<textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments" rows="2" oninput="markUnsaved()"></textarea>`;
 }
