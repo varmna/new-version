@@ -572,14 +572,14 @@ margin-top: 8px;
 <h1>Conversation Annotator</h1>
 <div class="top-bar-actions">
 <div class="user-display">
-👤 <span id="user-name-display">Not logged in</span>
-<button id="edit-username-btn" class="btn btn-sm btn-outline">✏️</button>
+ 👤 <span id="user-name-display">Not logged in</span>
+<button id="edit-username-btn" class="btn btn-sm btn-outline"> </button>
 </div>
 <div class="progress-info">
 <span class="progress-text" id="progress-text">0/0</span>
 <span class="annotated-count" id="annotated-count">0 Annotated</span>
 </div>
-<button id="exit-btn" class="btn btn-outline">🚪 Exit</button>
+<button id="exit-btn" class="btn btn-outline"> Exit</button>
 <button id="download-unannotated-btn" class="btn btn-outline"> Download Unannotated</button>
 <button id="download-btn" class="btn btn-primary"> Download Annotated</button>
 </div>
@@ -594,8 +594,8 @@ margin-top: 8px;
 <div class="conversation-display" id="conversation-display"></div>
 <div class="navigation-bar">
 <div class="nav-buttons">
-<button id="prev-btn" class="btn btn-outline">◀ Prev</button>
-<button id="next-btn" class="btn btn-outline">Next ▶</button>
+<button id="prev-btn" class="btn btn-outline"> Prev</button>
+<button id="next-btn" class="btn btn-outline">Next </button>
 </div>
 <div class="progress-bar-wrapper">
 <div class="progress-bar" id="progress-bar"></div>
@@ -614,7 +614,7 @@ margin-top: 8px;
 </div>
 <div class="sidebar-content" id="feedback-form"></div>
 <div class="sidebar-footer">
-<div class="unsaved-indicator" id="unsaved-indicator">⚠️ Unsaved changes</div>
+<div class="unsaved-indicator" id="unsaved-indicator"> Unsaved changes</div>
 <button id="save-btn" class="btn btn-success">Submit</button>
 <div class="keyboard-shortcuts-hint">← → to navigate | Ctrl+S to save</div>
 </div>
@@ -637,12 +637,14 @@ annotations: {},
 hasUnsavedChanges: false,
 fileName: '',
 userName: '',
-buckets: ["Bot Response","HVA","AB feature/HVA Related Query","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
+// I've restored HVA sub intent in buckets so the UI and UX match your original layout
+buckets: ["Bot Response","HVA","AB feature/HVA Related Query","HVA sub intent","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
 hvaOptions: ["N/A","3WM (3-Way Match)","Account Authority","Add User","ATEP (Amazon Tax Exemption Program)","Business Lists","Business Prime","Business Order Information","Custom Quotes","Guided Buying","PBI","Quantity Discount","Shared Settings","SSO","Subscibe & Save","Savings Agent"],
 staticComments: {
 "AB feature/HVA Related Query": ["HVA Related Query"],
+"HVA sub intent": ["SSO","Subscribe & Save","Account Authority","Business Order Information (BOI)","Custom Quotes","3-Way Match","Business Lists","ATEP (Tax Exemption)","PBI (Pay by Invoice)","Guided Buying","Business Prime","General Amazon Business"],
 "Personalized/Account-Specific Queries": ["Account Status","Account Specific","Order Related Issue","Pre-order Query","Personalised query","Order Tracking Issue"],
-"Bot Limitations": ["Yes","No"],
+"Bot Limitations": ["Yes","No","N/A"],
 "Promo & Freebie Related Queries": [],
 "Personal Prime Related Query": ["Amazon Prime Details"],
 "BP for Non-Profit Organisation Related Query": ["Non profit organisation query"],
@@ -651,6 +653,148 @@ staticComments: {
 "Other Queries": ["Customer annoyed by bot's pop-up","Customer query not understandable","Unrelated to Amazon","Outside Bot's knowledge base but within Amazon Business","Other query","Others - Savings agent"],
 "Overall Observations": []
 }
+};
+
+// map of detailed sub-intents for each HVA primary (used when primary includes SSO/Subscribe etc.)
+const subOptionsMap = {
+"SSO": [
+"SSO: What is it/Benefits overview",
+"SSO: Setup and configuration",
+"SSO: Login/authentication issues",
+"SSO: Add/manage users",
+"SSO: Integration problems (IdP, Account Authority)",
+"SSO: Disable or remove SSO",
+"SSO: Other issues"
+],
+"Subscibe & Save": [ // note: your HVA option had a spelling "Subscibe & Save" — we keep mapping tolerant to both
+"Subscribe & Save: What is it/Benefits overview",
+"Subscribe & Save: Set up subscription",
+"Subscribe & Save: Modify subscription (frequency/quantity)",
+"Subscribe & Save: Cancel or skip delivery",
+"Subscribe & Save: Discounts and pricing",
+"Subscribe & Save: Payment issues (PBI integration)",
+"Subscribe & Save: Other issues"
+],
+"Subscribe & Save": [
+"Subscribe & Save: What is it/Benefits overview",
+"Subscribe & Save: Set up subscription",
+"Subscribe & Save: Modify subscription (frequency/quantity)",
+"Subscribe & Save: Cancel or skip delivery",
+"Subscribe & Save: Discounts and pricing",
+"Subscribe & Save: Payment issues (PBI integration)",
+"Subscribe & Save: Other issues"
+],
+"Account Authority": [
+"Account Authority: What is it/Benefits overview",
+"Account Authority: Setup and domain verification",
+"Account Authority: Consolidate/manage accounts",
+"Account Authority: User permissions",
+"Account Authority: Spending visibility",
+"Account Authority: Disable or remove",
+"Account Authority: Other issues"
+],
+"Business Order Information": [
+"BOI: What is it/Benefits overview",
+"BOI: Configure fields and dropdowns",
+"BOI: Cost center/project codes setup",
+"BOI: Make fields required/optional",
+"BOI: Reporting and data export",
+"BOI: Integration issues",
+"BOI: Other issues"
+],
+"Business Order Information (BOI)": [
+"BOI: What is it/Benefits overview",
+"BOI: Configure fields and dropdowns",
+"BOI: Cost center/project codes setup",
+"BOI: Make fields required/optional",
+"BOI: Reporting and data export",
+"BOI: Integration issues",
+"BOI: Other issues"
+],
+"Custom Quotes": [
+"Custom Quotes: What is it/Benefits overview",
+"Custom Quotes: Check eligibility ($10k/999 units)",
+"Custom Quotes: Request a quote",
+"Custom Quotes: Track/manage quotes",
+"Custom Quotes: Accept or negotiate pricing",
+"Custom Quotes: Seller issues",
+"Custom Quotes: Other issues"
+],
+"3WM (3-Way Match)": [
+"3-Way Match: What is it/Benefits overview",
+"3-Way Match: Setup and configuration",
+"3-Way Match: Confirm deliveries",
+"3-Way Match: Invoice reconciliation issues",
+"3-Way Match: Mobile app usage",
+"3-Way Match: Reports and audit trail",
+"3-Way Match: Other issues"
+],
+"Business Lists": [
+"Business Lists: What is it/Benefits overview",
+"Business Lists: Create and manage lists",
+"Business Lists: Share lists with team",
+"Business Lists: Add/remove items",
+"Business Lists: Bulk ordering from lists",
+"Business Lists: Integration with policies",
+"Business Lists: Other issues"
+],
+"ATEP (Tax Exemption)": [
+"ATEP: What is it/Benefits overview",
+"ATEP: Check eligibility (nonprofit/gov/edu/reseller)",
+"ATEP: Upload/manage certificates",
+"ATEP: Tax not exempted (troubleshooting)",
+"ATEP: Certificate renewal/expiration",
+"ATEP: Multi-state setup",
+"ATEP: Other issues"
+],
+"PBI (Pay by Invoice)": [
+"PBI: What is it/Benefits overview",
+"PBI: Check eligibility/credit approval",
+"PBI: Payment terms and credit limits",
+"PBI: Make a payment",
+"PBI: Overdue/billing issues",
+"PBI: Integration with other features",
+"PBI: Other issues"
+],
+"PBI": [
+"PBI: What is it/Benefits overview",
+"PBI: Check eligibility/credit approval",
+"PBI: Payment terms and credit limits",
+"PBI: Make a payment",
+"PBI: Overdue/billing issues",
+"PBI: Integration with other features",
+"PBI: Other issues"
+],
+"Guided Buying": [
+"Guided Buying: What is it/Benefits overview",
+"Guided Buying: Check eligibility (Prime requirement)",
+"Guided Buying: Create/modify policies",
+"Guided Buying: Approval workflows",
+"Guided Buying: Policy not working (troubleshooting)",
+"Guided Buying: Spending limits and restrictions",
+"Guided Buying: Other issues"
+],
+"Business Prime": [
+"Business Prime: What is it/Benefits overview",
+"Business Prime: Choose/compare plans",
+"Business Prime: Sign up or upgrade",
+"Business Prime: Cancel or downgrade",
+"Business Prime: Spend visibility/analytics",
+"Business Prime: Extended features (PBI terms, Guided Buying)",
+"Business Prime: Billing and renewal",
+"Business Prime: Other issues"
+],
+"General Amazon Business": [
+"General Amazon Business: What is it/Benefits overview",
+"General Amazon Business: Account registration/setup",
+"General Amazon Business: Check eligibility for business account",
+"General Amazon Business: User management and permissions",
+"General Amazon Business: Billing and invoicing",
+"General Amazon Business: Analytics and reporting",
+"General Amazon Business: Integration (ERP/procurement systems)",
+"General Amazon Business: Feature not working (general troubleshooting)",
+"General Amazon Business: Other account issues"
+]
 };
 
 const elements = {
@@ -699,7 +843,7 @@ document.getElementById('user-name-display').textContent = name;
 localStorage.setItem('annotator_username', name);
 return true;
 }
-showStatus('⚠️ Please enter your name', 'warning');
+showStatus(' Please enter your name', 'warning');
 return false;
 }
 
@@ -743,6 +887,31 @@ markUnsaved();
 }
 };
 
+// NEW: when primary HVA sub-intent (first select) changes, populate the detail select
+window.toggleHVADetail = function(primarySelect) {
+const detailSelect = document.getElementById('hva-detail-select');
+if (!detailSelect) return;
+const primaryValue = primarySelect.value || '';
+// find matching key in subOptionsMap (case-insensitive match or partial)
+let key = null;
+Object.keys(subOptionsMap).forEach(k => {
+if (!key) {
+if (k.toLowerCase() === primaryValue.toLowerCase() || primaryValue.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(primaryValue.toLowerCase())) key = k;
+}
+});
+detailSelect.innerHTML = '<option value="">Choose detail...</option>';
+if (key && subOptionsMap[key] && subOptionsMap[key].length) {
+subOptionsMap[key].forEach(opt => {
+const o = document.createElement('option'); o.value = opt; o.textContent = opt; detailSelect.appendChild(o);
+});
+detailSelect.style.display = 'block';
+} else {
+detailSelect.style.display = 'none';
+detailSelect.value = '';
+}
+markUnsaved();
+};
+
 function createFeedbackForm() {
 let html = `
 <div class="form-section">
@@ -769,6 +938,7 @@ ${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
 <div class="form-section-title">Annotation Categories <span class="required-star">*</span></div>
 <div class="checkbox-list">`;
 
+// Build buckets (keeps same UI layout as your old code). For HVA sub intent we add primary + detail selects.
 tool.buckets.slice(2, -1).forEach((bucket, idx) => {
 html += `
 <div class="checkbox-item">
@@ -777,14 +947,27 @@ html += `
 </div>
 <div class="bucket-details" id="details-${bucket}" style="display: none;">`;
 if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-html += `
-<select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
-<option value="">Select a predefined comment...</option>
-${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
-</select>
-<textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
+  if (bucket === 'HVA sub intent') {
+    // primary select for HVA sub intent (list of primary sub-intent names)
+    html += `
+    <select class="form-control form-control-compact" name="${bucket}-static" id="hva-primary-select" onchange="(function(e){markUnsaved(); toggleHVADetail(e.target);})(event)">
+      <option value="">Select a sub-intent...</option>
+      ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <select class="form-control form-control-compact" id="hva-detail-select" name="${bucket}-detail" style="display:none; margin-top:8px;" onchange="markUnsaved()">
+      <option value="">Choose detail...</option>
+    </select>
+    <textarea class="form-control form-control-compact" name="${bucket}-sub" id="hva-sub-text" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
+  } else {
+    html += `
+    <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
+      <option value="">Select a predefined comment...</option>
+      ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
+  }
 } else {
-html += `<textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments" rows="2" oninput="markUnsaved()"></textarea>`;
+  html += `<textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments" rows="2" oninput="markUnsaved()"></textarea>`;
 }
 html += `</div>`;
 });
@@ -838,7 +1021,7 @@ createFeedbackForm();
 updateProgressBar();
 displayConversation();
 updateAnnotatedCount();
-showStatus('📂 Session restored!', 'success');
+showStatus(' Session restored!', 'success');
 return true;
 }
 } catch (e) { console.error('Session check failed:', e); }
@@ -888,8 +1071,8 @@ const isAnn = tool.annotations[convId] && Object.keys(tool.annotations[convId]).
 const seg = document.createElement('div');
 seg.className = `progress-segment ${isAnn ? 'annotated' : 'not-annotated'} ${i === tool.currentIndex ? 'current' : ''}`;
 seg.style.width = `${segW}%`;
-seg.title = `#${i+1} ${isAnn ? '✓' : '⚠'}`;
-seg.onclick = () => { tool.currentIndex = i; displayConversation(); };
+seg.title = `#${i+1} ${isAnn ? '✓' : ' '}`;
+seg.onclick = () => { if (tool.hasUnsavedChanges && !confirm('Unsaved changes. Continue?')) return; tool.currentIndex = i; displayConversation(); };
 elements.progressBar.appendChild(seg);
 });
 }
@@ -904,17 +1087,18 @@ const lastMsg = conv[conv.length - 1];
 
 elements.conversationInfo.innerHTML = `<div><strong>ID:</strong> ${convId}</div>
 <div><strong>Feedback:</strong> <span class="badge ${lastMsg['Customer Feedback']?.toLowerCase() === 'negative' ? 'badge-danger' : 'badge-success'}">${lastMsg['Customer Feedback'] || 'N/A'}</span></div>`;
-elements.annotationStatus.innerHTML = `<div class="status-indicator ${isAnn ? 'status-annotated' : 'status-not-annotated'}">${isAnn ? '✓ Annotated' : '⚠ Not Annotated'}</div>`;
+elements.annotationStatus.innerHTML = `<div class="status-indicator ${isAnn ? 'status-annotated' : 'status-not-annotated'}">${isAnn ? '✓ Annotated' : ' Not Annotated'}</div>`;
 
 let html = '';
 conv.forEach(m => {
-if (m.llmGeneratedUserMessage) html += `<div class="message customer"><div class="message-header">👤 Customer</div>${m.llmGeneratedUserMessage}</div>`;
-if (m.botMessage) html += `<div class="message bot"><div class="message-header">🤖 Bot</div>${m.botMessage}</div>`;
+if (m.llmGeneratedUserMessage) html += `<div class="message customer"><div class="message-header"> Customer</div>${m.llmGeneratedUserMessage}</div>`;
+if (m.botMessage) html += `<div class="message bot"><div class="message-header"> Bot</div>${m.botMessage}</div>`;
 });
 elements.conversationDisplay.innerHTML = html;
 elements.conversationDisplay.scrollTop = 0;
 elements.progressText.textContent = `${tool.currentIndex + 1}/${tool.conversations.length}`;
 updateProgressBar();
+createFeedbackForm(); // recreate form to ensure consistent DOM ids
 loadAnnotations();
 clearUnsaved();
 }
@@ -937,34 +1121,50 @@ const convId = tool.conversations[tool.currentIndex][0].Id;
 const temp = {};
 
 const botResp = document.querySelector('input[name="bot-response"]:checked');
-if (!botResp) { showStatus('⚠️ Please select Bot Response', 'warning'); return; }
+if (!botResp) { showStatus(' Please select Bot Response', 'warning'); return; }
 temp["Bot Response"] = botResp.value;
 
 const hva = document.getElementById('hva-select');
-if (!hva.value) { showStatus('⚠️ Please select HVA', 'warning'); return; }
+if (!hva.value) { showStatus(' Please select HVA', 'warning'); return; }
 temp["HVA"] = hva.value;
   const anyChecked = document.querySelectorAll('input[name="bucket-checkbox"]:checked').length > 0;
-if (!anyChecked) { showStatus('⚠️ Please select at least one Annotation Category', 'warning'); return; }
+if (!anyChecked) { showStatus(' Please select at least one Annotation Category', 'warning'); return; }
 
 let missing = false, missingBucket = '';
-tool.buckets.slice(2, -1).forEach(bucket => {
+tool.buckets.slice(2, -1).forEach((bucket, idx) => {
 const cb = document.querySelector(`input[value="${bucket}"]`);
 if (cb && cb.checked) {
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
-if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
-const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
-temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
-} else {
-const ta = document.querySelector(`textarea[name="${bucket}"]`);
-if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
-}
+  if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+    // Special handling for HVA sub intent (primary + detail)
+    if (bucket === 'HVA sub intent') {
+      const primary = document.getElementById('hva-primary-select');
+      const detail = document.getElementById('hva-detail-select');
+      const subText = document.getElementById('hva-sub-text');
+      if (!primary || !primary.value) { missing = true; missingBucket = bucket; return; }
+      // if detail is visible and selected prefer detail
+      if (detail && detail.style.display !== 'none' && detail.value) {
+        temp['HVA sub intent'] = detail.value;
+        temp[bucket] = (subText && subText.value.trim()) ? detail.value + ' - ' + subText.value.trim() : detail.value;
+      } else {
+        temp['HVA sub intent'] = primary.value;
+        temp[bucket] = (subText && subText.value.trim()) ? primary.value + ' - ' + subText.value.trim() : primary.value;
+      }
+    } else {
+      const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+      if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
+      const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
+      temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
+    }
+  } else {
+    const ta = document.querySelector(`textarea[name="${bucket}"]`);
+    if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
+  }
 }
 });
-if (missing) { showStatus(`⚠️ Select predefined comment for ${missingBucket}`, 'warning'); return; }
+if (missing) { showStatus(` Select predefined comment for ${missingBucket}`, 'warning'); return; }
 
 const obs = document.querySelector('textarea[name="overall-observations"]');
-if (!obs || !obs.value.trim()) { showStatus('⚠️ Please provide Overall Observations', 'warning'); return; }
+if (!obs || !obs.value.trim()) { showStatus(' Please provide Overall Observations', 'warning'); return; }
 temp["Overall Observations"] = obs.value.trim();
 temp["Timestamp"] = new Date().toLocaleString();
 
@@ -974,10 +1174,10 @@ clearUnsaved();
 updateAnnotatedCount();
 updateProgressBar();
 elements.annotationStatus.innerHTML = `<div class="status-indicator status-annotated">✓ Annotated</div>`;
-showStatus('✅ Saved!', 'success');
+showStatus(' Saved!', 'success');
 setTimeout(() => {
 if (tool.currentIndex < tool.conversations.length - 1) { tool.currentIndex++; displayConversation(); }
-else showStatus('🎉 All done!', 'success');
+else showStatus(' All done!', 'success');
 }, 500);
 }
 
@@ -1000,16 +1200,74 @@ if (r) r.checked = true;
 if (saved["HVA"]) document.getElementById('hva-select').value = saved["HVA"];
 if (saved["Overall Observations"]) document.querySelector('textarea[name="overall-observations"]').value = saved["Overall Observations"];
 
-tool.buckets.slice(2, -1).forEach(bucket => {
+// restore buckets
+tool.buckets.slice(2, -1).forEach((bucket, idx) => {
 if (saved[bucket]) {
 const cb = document.querySelector(`input[value="${bucket}"]`);
 if (cb) { cb.checked = true; document.getElementById(`details-${bucket}`).style.display = 'block'; }
 if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-const parts = saved[bucket].split(' - ');
-const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
-const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
-if (staticSel) staticSel.value = parts[0];
-if (sub) sub.value = parts.slice(1).join(' - ');
+  if (bucket === 'HVA sub intent') {
+    const primarySel = document.getElementById('hva-primary-select');
+    const detailSel = document.getElementById('hva-detail-select');
+    const subText = document.getElementById('hva-sub-text');
+    // Prefer saved['HVA sub intent'] as canonical stored value (could be detail or primary)
+    const hvSaved = saved['HVA sub intent'] || saved[bucket] || '';
+    // Try to see if hvSaved matches any detailed option; if yes, populate primary & detail
+    let matchedParent = null, matchedDetail = null;
+    Object.keys(subOptionsMap).forEach(parent => {
+      subOptionsMap[parent].forEach(detail => {
+        if (detail === hvSaved) { matchedParent = parent; matchedDetail = detail; }
+      });
+    });
+    if (matchedParent) {
+      // set primary select to the value in tool.staticComments (find option containing matchedParent)
+      if (primarySel) {
+        for (let i = 0; i < primarySel.options.length; i++) {
+          const op = primarySel.options[i];
+          if (op.value && op.value.toLowerCase().includes(matchedParent.toLowerCase())) { primarySel.value = op.value; break; }
+        }
+        // populate detail select and set matchedDetail
+        toggleHVADetail(primarySel);
+        if (detailSel) { detailSel.value = matchedDetail; detailSel.style.display = 'block'; }
+      }
+    } else {
+      // hvSaved didn't match a known detail; maybe it's the primary label or primary + subtext format
+      if (primarySel) {
+        // if hvSaved contains ' - ' then split
+        if (hvSaved.includes(' - ')) {
+          const parts = hvSaved.split(' - ');
+          primarySel.value = parts[0] || '';
+          toggleHVADetail(primarySel);
+          // subtext
+          if (subText) subText.value = parts.slice(1).join(' - ');
+        } else {
+          // try to set primary directly
+          for (let i = 0; i < primarySel.options.length; i++) {
+            const op = primarySel.options[i];
+            if (op.value && op.value.toLowerCase() === hvSaved.toLowerCase()) { primarySel.value = op.value; toggleHVADetail(primarySel); break; }
+          }
+          // if still empty, try to set primary to an option that contains hvSaved
+          if (!primarySel.value) {
+            for (let i = 0; i < primarySel.options.length; i++) {
+              const op = primarySel.options[i];
+              if (op.value && op.value.toLowerCase().includes(hvSaved.toLowerCase())) { primarySel.value = op.value; toggleHVADetail(primarySel); break; }
+            }
+          }
+        }
+      }
+      // also, if saved[bucket] had a sub-comment after ' - ', populate sub text area
+      if (saved[bucket] && saved[bucket].includes(' - ')) {
+        const parts = saved[bucket].split(' - ');
+        if (subText) subText.value = parts.slice(1).join(' - ');
+      }
+    }
+  } else {
+    const parts = saved[bucket].split(' - ');
+    const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+    const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
+    if (staticSel) staticSel.value = parts[0];
+    if (sub) sub.value = parts.slice(1).join(' - ');
+  }
 } else {
 const ta = document.querySelector(`textarea[name="${bucket}"]`);
 if (ta) ta.value = saved[bucket];
@@ -1028,7 +1286,7 @@ return buf;
 elements.fileInput.addEventListener('change', async (e) => {
 const file = e.target.files[0];
 if (!file) return;
-if (!file.name.match(/\.xlsx?$/i)) { showStatus('❌ Please select Excel file', 'error'); return; }
+if (!file.name.match(/\.xlsx?$/i)) { showStatus(' Please select Excel file', 'error'); return; }
 if (!tool.userName) { showLoginModal(); return; }
 try {
 showLoading(true);
@@ -1038,10 +1296,10 @@ if (!data || data.length === 0) throw new Error('No data');
 processExcelData(data);
 elements.uploadScreen.style.display = 'none';
 elements.mainInterface.style.display = 'flex';
-showStatus('✅ File loaded!', 'success');
+showStatus(' File loaded!', 'success');
 } catch (err) {
 console.error(err);
-showStatus('❌ Error loading file', 'error');
+showStatus(' Error loading file', 'error');
 } finally { showLoading(false); }
 });
 
@@ -1074,7 +1332,7 @@ elements.saveBtn.addEventListener('click', saveCurrentAnnotations);
 
 elements.jumpBtn.addEventListener('click', () => {
 const v = parseInt(elements.jumpInput.value);
-if (!v || v < 1 || v > tool.conversations.length) { showStatus('⚠️ Invalid number', 'warning'); return; }
+if (!v || v < 1 || v > tool.conversations.length) { showStatus(' Invalid number', 'warning'); return; }
 if (tool.hasUnsavedChanges && !confirm('Unsaved changes. Continue?')) return;
 tool.currentIndex = v - 1;
 displayConversation();
@@ -1083,7 +1341,7 @@ displayConversation();
 elements.jumpInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') elements.jumpBtn.click(); });
 
 elements.downloadBtn.addEventListener('click', () => {
-if (Object.keys(tool.annotations).length === 0) { showStatus('⚠️ No annotations', 'warning'); return; }
+if (Object.keys(tool.annotations).length === 0) { showStatus(' No annotations', 'warning'); return; }
 showLoading(true);
 const rows = [];
 tool.conversations.forEach(conv => {
@@ -1095,8 +1353,9 @@ rows.push({
 'Id': m.Id, 'llmGeneratedUserMessage': m.llmGeneratedUserMessage || '', 'botMessage': m.botMessage || '',
 'Customer Feedback': m['Customer Feedback'] || '', 'Bot Response': ann['Bot Response'] || '',
 'HVA': ann['HVA'] || '', 'AB feature/HVA Related Query': ann['AB feature/HVA Related Query'] || '',
+ 'HVA sub intent': ann['HVA sub intent'] || '',
 'Personalized/Account-Specific Queries': ann['Personalized/Account-Specific Queries'] || '',
-'Bot Limitations': ann['Bot Limitations'] || '', 
+'Bot Limitations': ann['Bot Limitations'] || '',
 'Promo & Freebie Related Queries': ann['Promo & Freebie Related Queries'] || '',
 'Help-page/Direct Customer Service': ann['Help-page/Direct Customer Service'] || '',
 'BP for Non-Profit Organisation Related Query': ann['BP for Non-Profit Organisation Related Query'] || '',
@@ -1107,7 +1366,7 @@ rows.push({
 });
 }
 });
-if (rows.length === 0) { showLoading(false); showStatus('⚠️ No annotated data', 'warning'); return; }
+if (rows.length === 0) { showLoading(false); showStatus(' No annotated data', 'warning'); return; }
 const ws = XLSX.utils.json_to_sheet(rows);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "Annotations");
@@ -1119,7 +1378,7 @@ const loginName = tool.userName.replace(/[^a-zA-Z0-9]/g, '_');
 a.download = `annotated_${loginName}_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
 a.click();
 showLoading(false);
-showStatus('✅ Downloaded!', 'success');
+showStatus(' Downloaded!', 'success');
 });
 
 elements.downloadUnannotatedBtn.addEventListener('click', () => {
@@ -1136,7 +1395,7 @@ rows.push({
 });
 }
 });
-if (rows.length === 0) { showLoading(false); showStatus('✅ All annotated!', 'success'); return; }
+if (rows.length === 0) { showLoading(false); showStatus(' All annotated!', 'success'); return; }
 const ws = XLSX.utils.json_to_sheet(rows);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "Unannotated");
@@ -1148,7 +1407,7 @@ const loginName = tool.userName.replace(/[^a-zA-Z0-9]/g, '_');
 a.download = `unannotated_${loginName}_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
 a.click();
 showLoading(false);
-showStatus('✅ Downloaded!', 'success');
+showStatus(' Downloaded!', 'success');
 });
 
 elements.exitBtn.addEventListener('click', () => {
