@@ -639,6 +639,15 @@ fileName: '',
 userName: '',
 buckets: ["Bot Response","HVA","AB feature/HVA Related Query","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
 hvaOptions: ["N/A","3WM (3-Way Match)","Account Authority","Add User","ATEP (Amazon Tax Exemption Program)","Business Lists","Business Prime","Business Order Information","Custom Quotes","Guided Buying","PBI","Quantity Discount","Shared Settings","SSO","Subscibe & Save","Savings Agent"],
+ssoSubComments: [
+    "SSO: What is it/Benefits overview",
+    "SSO: Setup and configuration",
+    "SSO: Login/authentication issues",
+    "SSO: Add/manage users",
+    "SSO: Integration problems (IdP, Account Authority)",
+    "SSO: Disable or remove SSO",
+    "SSO: Other issues"
+],
 staticComments: {
 "AB feature/HVA Related Query": ["HVA Related Query"],
 "Personalized/Account-Specific Queries": ["Account Status","Account Specific","Order Related Issue","Pre-order Query","Personalised query","Order Tracking Issue"],
@@ -742,6 +751,22 @@ details.querySelectorAll('textarea').forEach(t => t.value = '');
 markUnsaved();
 }
 };
+  window.handleHvaChange = function() {
+    const hvaSelect = document.getElementById('hva-select');
+    const abHvaCheckbox = document.querySelector('input[value="AB feature/HVA Related Query"]');
+    const abHvaSubCommentDropdown = document.getElementById('ab-hva-subcomment');
+    
+    markUnsaved();
+    
+    if (abHvaCheckbox && abHvaCheckbox.checked && abHvaSubCommentDropdown) {
+        if (hvaSelect.value === 'SSO') {
+            abHvaSubCommentDropdown.style.display = 'block';
+        } else {
+            abHvaSubCommentDropdown.style.display = 'none';
+            abHvaSubCommentDropdown.value = '';
+        }
+    }
+};
 
 function createFeedbackForm() {
 let html = `
@@ -760,7 +785,7 @@ let html = `
 </div>
 <div class="form-section">
 <div class="form-section-title">Select HVA <span class="required-star">*</span></div>
-<select class="form-control" id="hva-select" onchange="markUnsaved()">
+<select class="form-control" id="hva-select" onchange="handleHvaChange()">
 <option value="">Select an HVA</option>
 ${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
 </select>
@@ -776,7 +801,19 @@ html += `
 <label for="bucket-${idx}">${bucket}</label>
 </div>
 <div class="bucket-details" id="details-${bucket}" style="display: none;">`;
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+
+if (bucket === "AB feature/HVA Related Query") {
+    html += `
+    <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
+    <option value="">Select a predefined comment...</option>
+    ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <select class="form-control form-control-compact" id="ab-hva-subcomment" name="${bucket}-subcomment" style="display: none;" onchange="markUnsaved()">
+    <option value="">Select SSO sub-comment...</option>
+    ${tool.ssoSubComments.map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Additional notes (optional)" rows="2" oninput="markUnsaved()"></textarea>`;
+} else if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
 html += `
 <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
 <option value="">Select a predefined comment...</option>
@@ -948,9 +985,29 @@ if (!anyChecked) { showStatus('⚠️ Please select at least one Annotation Cate
 
 let missing = false, missingBucket = '';
 tool.buckets.slice(2, -1).forEach(bucket => {
-const cb = document.querySelector(`input[value="${bucket}"]`);
-if (cb && cb.checked) {
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+    const cb = document.querySelector(`input[value="${bucket}"]`);
+    if (cb && cb.checked) {
+        if (bucket === "AB feature/HVA Related Query") {
+            const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+            if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
+            
+            const hvaSelect = document.getElementById('hva-select');
+            const subCommentSel = document.querySelector(`select[name="${bucket}-subcomment"]`);
+            const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+            
+            let finalComment = staticSel.value;
+            
+            if (hvaSelect.value === 'SSO' && subCommentSel) {
+                if (!subCommentSel.value) { missing = true; missingBucket = bucket + ' (SSO sub-comment)'; return; }
+                finalComment += ' - ' + subCommentSel.value;
+            }
+            
+            if (subTextarea && subTextarea.value.trim()) {
+                finalComment += ' - ' + subTextarea.value.trim();
+            }
+            
+            temp[bucket] = finalComment;
+        } else if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
 const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
 if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
 const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
@@ -1001,10 +1058,31 @@ if (saved["HVA"]) document.getElementById('hva-select').value = saved["HVA"];
 if (saved["Overall Observations"]) document.querySelector('textarea[name="overall-observations"]').value = saved["Overall Observations"];
 
 tool.buckets.slice(2, -1).forEach(bucket => {
-if (saved[bucket]) {
-const cb = document.querySelector(`input[value="${bucket}"]`);
-if (cb) { cb.checked = true; document.getElementById(`details-${bucket}`).style.display = 'block'; }
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+    if (saved[bucket]) {
+        const cb = document.querySelector(`input[value="${bucket}"]`);
+        if (cb) { cb.checked = true; document.getElementById(`details-${bucket}`).style.display = 'block'; }
+        
+        if (bucket === "AB feature/HVA Related Query") {
+            const parts = saved[bucket].split(' - ');
+            const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+            const subCommentSel = document.querySelector(`select[name="${bucket}-subcomment"]`);
+            const subTextarea = document.querySelector(`textarea[name="${bucket}-sub"]`);
+            
+            if (staticSel && parts[0]) staticSel.value = parts[0];
+            
+            if (parts.length > 1) {
+                const ssoOption = tool.ssoSubComments.find(opt => parts[1] === opt);
+                if (ssoOption && subCommentSel) {
+                    subCommentSel.style.display = 'block';
+                    subCommentSel.value = ssoOption;
+                    if (parts.length > 2 && subTextarea) {
+                        subTextarea.value = parts.slice(2).join(' - ');
+                    }
+                } else if (subTextarea) {
+                    subTextarea.value = parts.slice(1).join(' - ');
+                }
+            }
+        } else if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
 const parts = saved[bucket].split(' - ');
 const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
 const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
