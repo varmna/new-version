@@ -572,7 +572,7 @@ margin-top: 8px;
 <h1>Conversation Annotator</h1>
 <div class="top-bar-actions">
 <div class="user-display">
- 👤 <span id="user-name-display">Not logged in</span>
+ 👤<span id="user-name-display">Not logged in</span>
 <button id="edit-username-btn" class="btn btn-sm btn-outline"> </button>
 </div>
 <div class="progress-info">
@@ -1116,69 +1116,90 @@ elements.annotatedCount.textContent = `${annConvs} Conv | ${chats} Chats Annotat
 }
 
 function saveCurrentAnnotations() {
-if (!tool.conversations || tool.conversations.length === 0) return;
-const convId = tool.conversations[tool.currentIndex][0].Id;
-const temp = {};
+  if (!tool.conversations || tool.conversations.length === 0) return;
+  const convId = tool.conversations[tool.currentIndex][0].Id;
+  const temp = {};
 
-const botResp = document.querySelector('input[name="bot-response"]:checked');
-if (!botResp) { showStatus(' Please select Bot Response', 'warning'); return; }
-temp["Bot Response"] = botResp.value;
+  const botResp = document.querySelector('input[name="bot-response"]:checked');
+  if (!botResp) { showStatus(' Please select Bot Response', 'warning'); return; }
+  temp["Bot Response"] = botResp.value;
 
-const hva = document.getElementById('hva-select');
-if (!hva.value) { showStatus(' Please select HVA', 'warning'); return; }
-temp["HVA"] = hva.value;
+  const hva = document.getElementById('hva-select');
+  if (!hva.value) { showStatus(' Please select HVA', 'warning'); return; }
+  temp["HVA"] = hva.value;
+
   const anyChecked = document.querySelectorAll('input[name="bucket-checkbox"]:checked').length > 0;
-if (!anyChecked) { showStatus(' Please select at least one Annotation Category', 'warning'); return; }
+  if (!anyChecked) { showStatus(' Please select at least one Annotation Category', 'warning'); return; }
 
-let missing = false, missingBucket = '';
-tool.buckets.slice(2, -1).forEach((bucket, idx) => {
-const cb = document.querySelector(`input[value="${bucket}"]`);
-if (cb && cb.checked) {
-  if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-    // Special handling for HVA sub intent (primary + detail)
-    if (bucket === 'HVA sub intent') {
-      const primary = document.getElementById('hva-primary-select');
-      const detail = document.getElementById('hva-detail-select');
-      const subText = document.getElementById('hva-sub-text');
-      if (!primary || !primary.value) { missing = true; missingBucket = bucket; return; }
-      // if detail is visible and selected prefer detail
-      if (detail && detail.style.display !== 'none' && detail.value) {
-        temp['HVA sub intent'] = detail.value;
-        temp[bucket] = (subText && subText.value.trim()) ? detail.value + ' - ' + subText.value.trim() : detail.value;
+  let missing = false, missingBucket = '', missingDetail = false;
+
+  tool.buckets.slice(2, -1).forEach((bucket, idx) => {
+    const cb = document.querySelector(`input[value="${bucket}"]`);
+    if (cb && cb.checked) {
+      if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+        // Special handling for HVA sub intent (primary + detail)
+        if (bucket === 'HVA sub intent') {
+          const primary = document.getElementById('hva-primary-select');
+          const detail = document.getElementById('hva-detail-select');
+          const subText = document.getElementById('hva-sub-text');
+
+          // primary must be chosen
+          if (!primary || !primary.value) {
+            missing = true; missingBucket = bucket; return;
+          }
+
+          // If detail select is visible (there are details for the selected primary),
+          // make selection of detail mandatory.
+          const detailVisible = detail && detail.style.display !== 'none';
+
+          if (detailVisible) {
+            if (!detail.value) {
+              missing = true; missingBucket = bucket; missingDetail = true; return;
+            }
+            // prefer detail as canonical stored value
+            temp['HVA sub intent'] = detail.value;
+            temp[bucket] = (subText && subText.value.trim()) ? detail.value + ' - ' + subText.value.trim() : detail.value;
+          } else {
+            // no detail list available — primary alone is accepted
+            temp['HVA sub intent'] = primary.value;
+            temp[bucket] = (subText && subText.value.trim()) ? primary.value + ' - ' + subText.value.trim() : primary.value;
+          }
+        } else {
+          const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+          if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
+          const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
+          temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
+        }
       } else {
-        temp['HVA sub intent'] = primary.value;
-        temp[bucket] = (subText && subText.value.trim()) ? primary.value + ' - ' + subText.value.trim() : primary.value;
+        const ta = document.querySelector(`textarea[name="${bucket}"]`);
+        if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
+        // if bucket has no static comments and textarea is blank, allow it? If you want to force text too, add validation here.
       }
-    } else {
-      const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
-      if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
-      const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
-      temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
     }
-  } else {
-    const ta = document.querySelector(`textarea[name="${bucket}"]`);
-    if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
+  });
+
+  if (missing) {
+    if (missingDetail) showStatus(` Please choose a detail for ${missingBucket}`, 'warning');
+    else showStatus(` Select predefined comment for ${missingBucket}`, 'warning');
+    return;
   }
-}
-});
-if (missing) { showStatus(` Select predefined comment for ${missingBucket}`, 'warning'); return; }
 
-const obs = document.querySelector('textarea[name="overall-observations"]');
-if (!obs || !obs.value.trim()) { showStatus(' Please provide Overall Observations', 'warning'); return; }
-temp["Overall Observations"] = obs.value.trim();
-temp["Timestamp"] = new Date().toLocaleString();
+  const obs = document.querySelector('textarea[name="overall-observations"]');
+  if (!obs || !obs.value.trim()) { showStatus(' Please provide Overall Observations', 'warning'); return; }
+  temp["Overall Observations"] = obs.value.trim();
+  temp["Timestamp"] = new Date().toLocaleString();
 
-tool.annotations[convId] = temp;
-saveToLocalStorage();
-clearUnsaved();
-updateAnnotatedCount();
-updateProgressBar();
-elements.annotationStatus.innerHTML = `<div class="status-indicator status-annotated">✓ Annotated</div>`;
-showStatus(' Saved!', 'success');
-setTimeout(() => {
-if (tool.currentIndex < tool.conversations.length - 1) { tool.currentIndex++; displayConversation(); }
-else showStatus(' All done!', 'success');
-}, 500);
+  tool.annotations[convId] = temp;
+  saveToLocalStorage();
+  clearUnsaved();
+  updateAnnotatedCount();
+  updateProgressBar();
+  elements.annotationStatus.innerHTML = `<div class="status-indicator status-annotated">✓ Annotated</div>`;
+  showStatus(' Saved!', 'success');
+  setTimeout(() => {
+    if (tool.currentIndex < tool.conversations.length - 1) { tool.currentIndex++; displayConversation(); }
+    else showStatus(' All done!', 'success');
+  }, 500);
 }
 
 function loadAnnotations() {
