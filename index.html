@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conversation Annotator</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
@@ -17,6 +16,25 @@
 --border-color: #ddd;
 --background-light: #f8f9fa;
 --sidebar-width: 400px;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('data:font/woff2;base64,d09GMgABAAAAAAm4ABAAAAAA...') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  src: url('data:font/woff2;base64,d09GMgABAAAAAAxYABAAAAAA...') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: url('data:font/woff2;base64,d09GMgABAAAAAA74ABAAAAAA...') format('woff2');
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -637,7 +655,6 @@ annotations: {},
 hasUnsavedChanges: false,
 fileName: '',
 userName: '',
-// I've restored HVA sub intent in buckets so the UI and UX match your original layout
 buckets: ["Bot Response","HVA","AB feature/HVA Related Query","HVA sub intent","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
 hvaOptions: ["N/A","3WM (3-Way Match)","Account Authority","Add User","ATEP (Amazon Tax Exemption Program)","Business Lists","Business Prime","Business Order Information","Custom Quotes","Guided Buying","PBI","Quantity Discount","Shared Settings","SSO","Subscibe & Save","Savings Agent"],
 staticComments: {
@@ -655,7 +672,6 @@ staticComments: {
 }
 };
 
-// map of detailed sub-intents for each HVA primary (used when primary includes SSO/Subscribe etc.)
 const subOptionsMap = {
 "SSO": [
 "SSO: What is it/Benefits overview",
@@ -666,7 +682,7 @@ const subOptionsMap = {
 "SSO: Disable or remove SSO",
 "SSO: Other issues"
 ],
-"Subscibe & Save": [ // note: your HVA option had a spelling "Subscibe & Save" — we keep mapping tolerant to both
+"Subscibe & Save": [ 
 "Subscribe & Save: What is it/Benefits overview",
 "Subscribe & Save: Set up subscription",
 "Subscribe & Save: Modify subscription (frequency/quantity)",
@@ -887,12 +903,10 @@ markUnsaved();
 }
 };
 
-// NEW: when primary HVA sub-intent (first select) changes, populate the detail select
 window.toggleHVADetail = function(primarySelect) {
 const detailSelect = document.getElementById('hva-detail-select');
 if (!detailSelect) return;
 const primaryValue = primarySelect.value || '';
-// find matching key in subOptionsMap (case-insensitive match or partial)
 let key = null;
 Object.keys(subOptionsMap).forEach(k => {
 if (!key) {
@@ -938,7 +952,6 @@ ${tool.hvaOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
 <div class="form-section-title">Annotation Categories <span class="required-star">*</span></div>
 <div class="checkbox-list">`;
 
-// Build buckets (keeps same UI layout as your old code). For HVA sub intent we add primary + detail selects.
 tool.buckets.slice(2, -1).forEach((bucket, idx) => {
 html += `
 <div class="checkbox-item">
@@ -948,7 +961,7 @@ html += `
 <div class="bucket-details" id="details-${bucket}" style="display: none;">`;
 if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
   if (bucket === 'HVA sub intent') {
-    // primary select for HVA sub intent (list of primary sub-intent names)
+   
     html += `
     <select class="form-control form-control-compact" name="${bucket}-static" id="hva-primary-select" onchange="(function(e){markUnsaved(); toggleHVADetail(e.target);})(event)">
       <option value="">Select a sub-intent...</option>
@@ -1098,7 +1111,7 @@ elements.conversationDisplay.innerHTML = html;
 elements.conversationDisplay.scrollTop = 0;
 elements.progressText.textContent = `${tool.currentIndex + 1}/${tool.conversations.length}`;
 updateProgressBar();
-createFeedbackForm(); // recreate form to ensure consistent DOM ids
+createFeedbackForm(); 
 loadAnnotations();
 clearUnsaved();
 }
@@ -1137,19 +1150,18 @@ function saveCurrentAnnotations() {
     const cb = document.querySelector(`input[value="${bucket}"]`);
     if (cb && cb.checked) {
       if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-        // Special handling for HVA sub intent (primary + detail)
+        
         if (bucket === 'HVA sub intent') {
           const primary = document.getElementById('hva-primary-select');
           const detail = document.getElementById('hva-detail-select');
           const subText = document.getElementById('hva-sub-text');
 
-          // primary must be chosen
+          
           if (!primary || !primary.value) {
             missing = true; missingBucket = bucket; return;
           }
 
-          // If detail select is visible (there are details for the selected primary),
-          // make selection of detail mandatory.
+        
           const detailVisible = detail && detail.style.display !== 'none';
 
           if (detailVisible) {
@@ -1160,7 +1172,7 @@ function saveCurrentAnnotations() {
             temp['HVA sub intent'] = detail.value;
             temp[bucket] = (subText && subText.value.trim()) ? detail.value + ' - ' + subText.value.trim() : detail.value;
           } else {
-            // no detail list available — primary alone is accepted
+           
             temp['HVA sub intent'] = primary.value;
             temp[bucket] = (subText && subText.value.trim()) ? primary.value + ' - ' + subText.value.trim() : primary.value;
           }
@@ -1173,7 +1185,6 @@ function saveCurrentAnnotations() {
       } else {
         const ta = document.querySelector(`textarea[name="${bucket}"]`);
         if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
-        // if bucket has no static comments and textarea is blank, allow it? If you want to force text too, add validation here.
       }
     }
   });
@@ -1221,7 +1232,6 @@ if (r) r.checked = true;
 if (saved["HVA"]) document.getElementById('hva-select').value = saved["HVA"];
 if (saved["Overall Observations"]) document.querySelector('textarea[name="overall-observations"]').value = saved["Overall Observations"];
 
-// restore buckets
 tool.buckets.slice(2, -1).forEach((bucket, idx) => {
 if (saved[bucket]) {
 const cb = document.querySelector(`input[value="${bucket}"]`);
@@ -1231,9 +1241,7 @@ if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
     const primarySel = document.getElementById('hva-primary-select');
     const detailSel = document.getElementById('hva-detail-select');
     const subText = document.getElementById('hva-sub-text');
-    // Prefer saved['HVA sub intent'] as canonical stored value (could be detail or primary)
     const hvSaved = saved['HVA sub intent'] || saved[bucket] || '';
-    // Try to see if hvSaved matches any detailed option; if yes, populate primary & detail
     let matchedParent = null, matchedDetail = null;
     Object.keys(subOptionsMap).forEach(parent => {
       subOptionsMap[parent].forEach(detail => {
@@ -1241,20 +1249,16 @@ if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
       });
     });
     if (matchedParent) {
-      // set primary select to the value in tool.staticComments (find option containing matchedParent)
       if (primarySel) {
         for (let i = 0; i < primarySel.options.length; i++) {
           const op = primarySel.options[i];
           if (op.value && op.value.toLowerCase().includes(matchedParent.toLowerCase())) { primarySel.value = op.value; break; }
         }
-        // populate detail select and set matchedDetail
         toggleHVADetail(primarySel);
         if (detailSel) { detailSel.value = matchedDetail; detailSel.style.display = 'block'; }
       }
     } else {
-      // hvSaved didn't match a known detail; maybe it's the primary label or primary + subtext format
       if (primarySel) {
-        // if hvSaved contains ' - ' then split
         if (hvSaved.includes(' - ')) {
           const parts = hvSaved.split(' - ');
           primarySel.value = parts[0] || '';
@@ -1262,12 +1266,10 @@ if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
           // subtext
           if (subText) subText.value = parts.slice(1).join(' - ');
         } else {
-          // try to set primary directly
           for (let i = 0; i < primarySel.options.length; i++) {
             const op = primarySel.options[i];
             if (op.value && op.value.toLowerCase() === hvSaved.toLowerCase()) { primarySel.value = op.value; toggleHVADetail(primarySel); break; }
           }
-          // if still empty, try to set primary to an option that contains hvSaved
           if (!primarySel.value) {
             for (let i = 0; i < primarySel.options.length; i++) {
               const op = primarySel.options[i];
@@ -1276,7 +1278,6 @@ if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
           }
         }
       }
-      // also, if saved[bucket] had a sub-comment after ' - ', populate sub text area
       if (saved[bucket] && saved[bucket].includes(' - ')) {
         const parts = saved[bucket].split(' - ');
         if (subText) subText.value = parts.slice(1).join(' - ');
